@@ -12,7 +12,7 @@ namespace Domain.src.Core.Aggregates
         public void RemoveRoom(long roomId);
         public void RemoveRooms(long hotelId);
         public void UpdateRoom(Room room);
-        public Room getRoom(long roomId);
-        public IReadOnlyList<Room> getHotelRooms(long hotelId);
+        public Room GetRoom(long roomId);
+        public IReadOnlyList<Room> GetHotelRooms(long hotelId);
     }
 }
