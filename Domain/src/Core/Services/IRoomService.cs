@@ -1,7 +1,7 @@
 ﻿
 using Core.Entities;
 
-namespace Domain.src.Core.Aggregates
+namespace Domain.src.Core.Services
 {
     /// <summary>
     /// Менеджер номеров
