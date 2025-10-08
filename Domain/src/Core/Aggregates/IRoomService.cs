@@ -9,10 +9,10 @@ namespace Domain.src.Core.Aggregates
     internal interface IRoomService
     {
         public void Add(Room room);
-        public void RemoveRoom(long roomId);
-        public void RemoveRooms(long hotelId);
-        public void UpdateRoom(Room room);
-        public Room GetRoom(long roomId);
-        public IReadOnlyList<Room> GetHotelRooms(long hotelId);
+        public void Remove(long roomId);
+        public void RemoveAll(long hotelId);
+        public void Update(Room room);
+        public Room Get(long roomId);
+        public IReadOnlyList<Room> GetAllByHotel(long hotelId);
     }
 }
