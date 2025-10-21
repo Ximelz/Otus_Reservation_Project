@@ -1,4 +1,6 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace Core.Reserve
 {
 	public class Reserve
@@ -14,9 +16,9 @@ namespace Core.Reserve
 			this.Persons = Persons;
 			Cost = 0;
 		}
-		public readonly Guid Id;
-		public readonly PersonReserve UserReserve;
-		public readonly RoomReserve RoomReserve;
+        public readonly Guid Id;
+        public readonly PersonReserve UserReserve;
+        public readonly RoomReserve RoomReserve;
 		public long Cost { get; private set; }
 		public TimeSpan ReserveTimeSpan { get; private set; }
 		public StatusReserve Status {  get; private set; }
