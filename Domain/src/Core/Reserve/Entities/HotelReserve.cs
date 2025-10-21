@@ -9,14 +9,16 @@ namespace Core.Reserve
 {
     public class HotelReserve
     {
-        public HotelReserve(Guid Id, string Name, string Email, string Phone)
+        public HotelReserve(Guid Id, string Name, string Email, string Phone, HotelReserveAddress Address)
         {
             this.Id = Id;
             this.Name = Name;
             this.Email = Email;
             this.Phone = Phone;
+            this.Address = Address;
         }
         public readonly Guid Id;
+        public readonly HotelReserveAddress Address;
         public string Name { get; private set; }
         public string Email { get; private set; }
         public string Phone { get; private set; }
