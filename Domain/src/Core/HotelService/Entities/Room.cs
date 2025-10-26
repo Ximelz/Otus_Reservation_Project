@@ -1,5 +1,5 @@
 ﻿
-namespace Core.HotelService.Entities
+namespace Domain.src.Core.HotelService.Entities
 {
 	/// <summary>
 	/// Сущность: Номер в отеле
