@@ -1,7 +1,7 @@
 ﻿
-using Core.Entities;
+using Core.HotelService.Entities;
 
-namespace Domain.src.Core.Repositories
+namespace Domain.src.Core.HotelService.Repositories
 {
     /// <summary>
     /// Хранилище номеров гостиницы
@@ -12,6 +12,7 @@ namespace Domain.src.Core.Repositories
         public void Remove(long roomId);
         public void Update(Room room);
         public Room Get(long roomId);
+
         public IReadOnlyList<Room> GetAllByHotel(long hotelId);
     }
 }

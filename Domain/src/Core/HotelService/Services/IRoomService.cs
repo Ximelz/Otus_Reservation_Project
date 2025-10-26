@@ -1,7 +1,7 @@
 ﻿
-using Core.Entities;
+using Core.HotelService.Entities;
 
-namespace Domain.src.Core.Services
+namespace Domain.src.Core.HotelService.Services
 {
     /// <summary>
     /// Менеджер номеров
