@@ -21,5 +21,5 @@ namespace Core.HotelService.Entities
 		/// </summary>
 		public int ComfortLevel { get; set; }
 		public decimal Price { get; set; }
-	}
+    }
 }
