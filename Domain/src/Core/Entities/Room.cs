@@ -11,6 +11,8 @@ namespace Core.Entities
 		Third
 	}
 
+	/// something
+
 	/// <summary>
 	/// Номер в гостинице
 	/// </summary>
