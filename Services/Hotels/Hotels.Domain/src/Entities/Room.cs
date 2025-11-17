@@ -1,18 +1,8 @@
 ﻿
-namespace Core.Entities
+namespace Hotels.Domain.src.Entities
 {
 	/// <summary>
-	/// Уровень комфорта в номере
-	/// </summary>
-	public enum ComfortLevel
-	{
-		First,
-		Second,
-		Third
-	}
-
-	/// <summary>
-	/// Номер в гостинице
+	/// Сущность: Номер в отеле
 	/// </summary>
 	public class Room
 	{
@@ -29,7 +19,7 @@ namespace Core.Entities
 		/// <summary>
 		/// Уровень комфорта
 		/// </summary>
-		public ComfortLevel Level { get; set; }
+		public int ComfortLevel { get; set; }
 		public decimal Price { get; set; }
 	}
 }
