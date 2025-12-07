@@ -15,8 +15,7 @@ namespace Hotels.Infrastructure.Pg.src.Services
 
         public async Task Add(Hotel hotel)
         {
-            Hotel? existedHotel = await _hotelsRepository.Get(hotel.Id);
-            if (existedHotel != null)
+            if (await IsExist(hotel.Id))
             {
                 // todo log "Hotel {hotel.Name} is existed"
                 return;
@@ -27,8 +26,7 @@ namespace Hotels.Infrastructure.Pg.src.Services
 
         public async Task Remove(long hotelId)
         {
-            Hotel? existedHotel = await _hotelsRepository.Get(hotelId);
-            if (existedHotel == null)
+            if (!await IsExist(hotelId))
             {
                 // todo log "Hotel is not removed. It is absent."
                 return;
@@ -39,8 +37,7 @@ namespace Hotels.Infrastructure.Pg.src.Services
 
         public async Task Update(Hotel hotel)
         {
-            Hotel? existedHotel = await _hotelsRepository.Get(hotel.Id);
-            if (existedHotel == null)
+            if (!await IsExist(hotel.Id))
             {
                 // todo log "Hotel {hotel.Name} is not updated. It is absent."
                 return;
@@ -62,6 +59,12 @@ namespace Hotels.Infrastructure.Pg.src.Services
         public async Task<IReadOnlyList<Hotel>> GetAllByStars(HashSet<int> stars)
         {
             return await _hotelsRepository.GetAllByStars(stars);
+        }
+
+        private async Task<bool> IsExist(long id)
+        {
+            Hotel? existedHotel = await _hotelsRepository.Get(id);
+            return (existedHotel != null);
         }
     }
 }
