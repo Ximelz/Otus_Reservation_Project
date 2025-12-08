@@ -1,10 +1,10 @@
-﻿using Hotels.Domain.src.Entities;
+﻿using Hotels.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Hotels.Infrastructure
 {
-    internal class SqlDatabaseContext : DbContext
+    public class SqlDatabaseContext : DbContext
     {
         public DbSet<Hotel> Hotels => Set<Hotel>();
         public DbSet<Room> Rooms => Set<Room>();
@@ -13,6 +13,7 @@ namespace Hotels.Infrastructure
         public SqlDatabaseContext(DbContextOptions<SqlDatabaseContext> options) : base(options)
         {
             Database.EnsureCreated();
+            //Database.EnsureDeleted();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

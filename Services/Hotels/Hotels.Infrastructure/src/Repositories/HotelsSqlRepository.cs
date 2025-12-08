@@ -1,47 +1,65 @@
 ﻿
-using Hotels.Domain.src.Entities;
-using Hotels.Domain.src.Repositories;
+using Hotels.Domain.Entities;
+using Hotels.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hotels.Infrastructure.Repositories
 {
-    internal class HotelsSqlRepository : IHotelsRepository
+    public class HotelsSqlRepository : IHotelsRepository
     {
-        private readonly DbContext _dbContext;
+        private readonly DbContextOptions<SqlDatabaseContext> _dbContextOptions;
 
-        public HotelsSqlRepository(DbContext dbContext)
+        public HotelsSqlRepository(DbContextOptions<SqlDatabaseContext> dbContextOptions)
         {
-            _dbContext = dbContext;
+            _dbContextOptions = dbContextOptions;
         }
 
-        public async Task Add(Hotel hotel)
+        public async Task<long> Add(Hotel hotel)
         {
-            await _dbContext.AddAsync(hotel);
+            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            {
+                await dbContext.AddAsync(hotel);
+                await dbContext.SaveChangesAsync();
+
+                return hotel.Id;
+            }
         }
 
         public async Task<Hotel?> Get(long hotelId)
         {
-            var query = _dbContext.Set<Hotel>().AsQueryable();
-            return await query.SingleOrDefaultAsync(h => h.Id == hotelId);
+            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            {
+                var query = dbContext.Set<Hotel>().AsQueryable();
+                return await query.SingleOrDefaultAsync(h => h.Id == hotelId);
+            }
         }
 
         public async Task<IReadOnlyList<Hotel>> GetAllByCountry(int countryId)
         {
-            var query = _dbContext.Set<Hotel>().AsQueryable();
-            return await query.Where(h => h.CountryId == countryId).ToListAsync();
+            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            {
+                var query = dbContext.Set<Hotel>().AsQueryable();
+                return await query.Where(h => h.CountryId == countryId).ToListAsync();
+            }
         }
 
         public async Task<IReadOnlyList<Hotel>> GetAllByStars(HashSet<int> stars)
         {
-            var query = _dbContext.Set<Hotel>().AsQueryable();
-            return await query.Where(h => stars.Contains(h.Stars)).ToListAsync();
+            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            {
+                var query = dbContext.Set<Hotel>().AsQueryable();
+                return await query.Where(h => stars.Contains(h.Stars)).ToListAsync();
+            }
         }
 
         public async Task Remove(long hotelId)
         {
-            var query = _dbContext.Set<Hotel>().AsQueryable();
-            query.Where(h => h.Id == hotelId);
-            await query.ExecuteDeleteAsync();
+            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            {
+                var query = dbContext.Set<Hotel>().AsQueryable();
+                query.Where(h => h.Id == hotelId);
+                await query.ExecuteDeleteAsync();
+            }
         }
 
         public async Task Update(Hotel hotel)
@@ -53,15 +71,18 @@ namespace Hotels.Infrastructure.Repositories
                 return;
             }
 
-            repHotel.Name = hotel.Name;
-            repHotel.Phone = hotel.Phone;
-            repHotel.Email = hotel.Email;
-            repHotel.Address = hotel.Address;
-            repHotel.Stars = hotel.Stars;
-            repHotel.Description = hotel.Description;
-            repHotel.CountryId = hotel.CountryId;
+            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            {
+                repHotel.Name = hotel.Name;
+                repHotel.Phone = hotel.Phone;
+                repHotel.Email = hotel.Email;
+                repHotel.Address = hotel.Address;
+                repHotel.Stars = hotel.Stars;
+                repHotel.Description = hotel.Description;
+                repHotel.CountryId = hotel.CountryId;
 
-            await _dbContext.SaveChangesAsync();
+                await dbContext.SaveChangesAsync();
+            }
         }
     }
 }
