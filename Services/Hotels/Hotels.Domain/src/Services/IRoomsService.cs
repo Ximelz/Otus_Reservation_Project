@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Hotels.Domain.Entities;
+﻿using Hotels.Domain.Entities;
 
 namespace Hotels.Domain.src.Services
 {
@@ -12,7 +11,7 @@ namespace Hotels.Domain.src.Services
         void Remove(long roomId);
         void RemoveAll(long hotelId);
         void Update(Room room);
-        Room Get(long roomId);
+        Room? Get(long roomId);
 
         IReadOnlyList<Room> GetAllByHotel(long hotelId);
         IReadOnlyList<Room> GetAllByComfortLevel(long hotelId, int minComfortLevel, int maxComfortLevel);
