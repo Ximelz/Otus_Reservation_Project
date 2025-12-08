@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hotels.Infrastructure", "Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hotels.Domain", "Services\Hotels\Hotels.Domain\Hotels.Domain.csproj", "{F4BBE78F-DFAF-4D97-9DE4-356AC18B4414}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hotels.xUnitTests", "Services\Hotels\Hotels.xUnitTests\Hotels.xUnitTests.csproj", "{B9633DD3-4F0B-4484-96FF-E7A92E1133BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{F4BBE78F-DFAF-4D97-9DE4-356AC18B4414}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4BBE78F-DFAF-4D97-9DE4-356AC18B4414}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4BBE78F-DFAF-4D97-9DE4-356AC18B4414}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9633DD3-4F0B-4484-96FF-E7A92E1133BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9633DD3-4F0B-4484-96FF-E7A92E1133BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9633DD3-4F0B-4484-96FF-E7A92E1133BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9633DD3-4F0B-4484-96FF-E7A92E1133BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
