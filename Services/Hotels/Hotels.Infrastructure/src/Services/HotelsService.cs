@@ -1,8 +1,8 @@
-﻿using Hotels.Domain.src.Entities;
-using Hotels.Domain.src.Repositories;
-using Hotels.Domain.src.Services;
+﻿using Hotels.Domain.Entities;
+using Hotels.Domain.Repositories;
+using Hotels.Domain.Services;
 
-namespace Hotels.Infrastructure.Pg.src.Services
+namespace Hotels.Infrastructure.Services
 {
     public class HotelsService : IHotelsService
     {
