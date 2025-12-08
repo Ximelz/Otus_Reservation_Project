@@ -1,10 +1,10 @@
-﻿using Hotels.Domain.src.Entities;
+﻿using Hotels.Domain.Entities;
 
-namespace Hotels.Domain.src.Repositories
+namespace Hotels.Domain.Repositories
 {
     public interface IHotelsRepository
     {
-        Task Add(Hotel hotel);
+        Task<long> Add(Hotel hotel);
         Task Remove(long hotelId);
         Task Update(Hotel hotel);
         Task<Hotel?> Get(long hotelId);

@@ -1,5 +1,5 @@
 ﻿
-namespace Hotels.Domain.src.Entities
+namespace Hotels.Domain.Entities
 {
     /// <summary>
 	/// Сущность: Отель

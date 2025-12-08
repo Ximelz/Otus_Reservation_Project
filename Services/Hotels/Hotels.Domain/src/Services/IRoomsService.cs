@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Hotels.Domain.src.Entities;
+using Hotels.Domain.Entities;
 
 namespace Hotels.Domain.src.Services
 {
