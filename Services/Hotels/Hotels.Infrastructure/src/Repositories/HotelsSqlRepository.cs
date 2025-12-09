@@ -81,6 +81,7 @@ namespace Hotels.Infrastructure.Repositories
                 repHotel.Description = hotel.Description;
                 repHotel.CountryId = hotel.CountryId;
 
+                dbContext.Update(repHotel);
                 await dbContext.SaveChangesAsync();
             }
         }
