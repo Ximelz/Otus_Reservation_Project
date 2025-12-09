@@ -247,7 +247,5 @@ namespace Hotels.xUnitTests
 
             await _hotelsRepository.Remove(newHotel.Id);
         }
-
-
     }
 }

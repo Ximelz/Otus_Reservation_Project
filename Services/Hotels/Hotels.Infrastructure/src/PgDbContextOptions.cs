@@ -23,9 +23,14 @@ namespace Hotels.Infrastructure
 
         public DbContextOptions<SqlDatabaseContext> GetOptions()
         {
+            return GetOptionsBuilder().Options;
+        }
+
+        public DbContextOptionsBuilder<SqlDatabaseContext> GetOptionsBuilder()
+        {
             var optionsBuilder = new DbContextOptionsBuilder<SqlDatabaseContext>();
 
-            return optionsBuilder.UseNpgsql(GetConnectionString()).Options;
+            return optionsBuilder.UseNpgsql(GetConnectionString());
         }
 
         private string GetConnectionString()
