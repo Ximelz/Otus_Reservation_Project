@@ -1,5 +1,4 @@
-﻿
-using Hotels.Domain.Entities;
+﻿using Hotels.Domain.Entities;
 using Hotels.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,8 +55,9 @@ namespace Hotels.Infrastructure.Repositories
         {
             using (SqlDatabaseContext dbContext = new(_dbContextOptions))
             {
-                var query = dbContext.Set<Hotel>().AsQueryable();
-                query.Where(h => h.Id == hotelId);
+                var query = dbContext
+                                .Set<Hotel>().AsQueryable()
+                                .Where(h => h.Id == hotelId);
                 await query.ExecuteDeleteAsync();
             }
         }
@@ -67,7 +67,6 @@ namespace Hotels.Infrastructure.Repositories
             Hotel? repHotel = await Get(hotel.Id);
             if (repHotel == null)
             {
-                // todo log hotel not found
                 return;
             }
 
