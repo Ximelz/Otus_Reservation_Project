@@ -18,6 +18,12 @@ namespace Hotels.xUnitTests
             try
             {
                 _hotelsRepository = new HotelsSqlRepository(pgOptionsBuilder.GetOptions());
+
+                using (SqlDatabaseContext dbContext = new(pgOptionsBuilder.GetOptions()))
+                {
+                    dbContext.Database.EnsureDeleted();
+                    dbContext.SaveChanges();
+                }
             }
             catch (Exception ex)
             {
@@ -56,6 +62,34 @@ namespace Hotels.xUnitTests
                 Assert.Fail(ex.Message);
             }
 
+            Hotel? findedHotel = await _hotelsRepository.Get(newHotel.Id);
+            Assert.NotNull(findedHotel);
+
+            //---------------------------------------------------------------------
+
+            Hotel newHotel2 = new();
+
+            // ставим уникальное имя, по которому будем искать добавленную запись
+            newHotel2.Name = "Astoria";
+            newHotel2.Stars = 5;
+            newHotel2.Address = "Gus Hrustalniy, Central Street, 177";
+            newHotel2.CountryId = 1;
+            newHotel2.Phone = "+74924123377";
+            newHotel2.Email = "service@gh-astoria-hotel.ru";
+
+            // добавление записи отеля
+            try
+            {
+                await _hotelsRepository.Add(newHotel2);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+
+            Hotel? findedHotel2 = await _hotelsRepository.Get(newHotel2.Id);
+            Assert.NotNull(findedHotel2);
+
             try
             {
                 await _hotelsRepository.Remove(newHotel.Id);
@@ -67,6 +101,10 @@ namespace Hotels.xUnitTests
 
             Hotel? removedHotel = await _hotelsRepository.Get(newHotel.Id);
             Assert.True(removedHotel == null);
+
+            // проверить то, что осталась вторая запись, то есть что удалена только одна запись
+            findedHotel2 = await _hotelsRepository.Get(newHotel2.Id);
+            Assert.NotNull(findedHotel2);
         }
 
         [Fact]
@@ -127,6 +165,9 @@ namespace Hotels.xUnitTests
                 Assert.Fail(ex.Message);
             }
 
+            Hotel? findedHotel = await _hotelsRepository.Get(newHotel.Id);
+            Assert.NotNull(findedHotel);
+
             // проверка обновления отеля
             newHotel.Name = "Astoria Pro";
 
@@ -139,7 +180,7 @@ namespace Hotels.xUnitTests
                 Assert.Fail(ex.Message);
             }
 
-            Hotel? findedHotel = await _hotelsRepository.Get(newHotel.Id);
+            findedHotel = await _hotelsRepository.Get(newHotel.Id);
             Assert.NotNull(findedHotel);
 
             Assert.Equal("Astoria Pro", findedHotel.Name);
