@@ -1,29 +1,32 @@
 using Hotels.Infrastructure;
 using Hotels.Domain.Entities;
+using Hotels.Domain.Repositories;
 using Hotels.Infrastructure.Repositories;
 
 namespace Hotels.xUnitTests
 {
-    public class HotelsSqlRepositoryTest
+    public class HotelsSqlRepositoryTest : BaseSqlRepositoryTest, IDisposable
     {
-        private string _dbConfigurationFilePath = "./DbConfiguration.json";
-        private HotelsSqlRepository _hotelsRepository;
+        private IHotelsRepository _hotelsRepository;
+        private PgDbContextOptions _pgOptionsBuilder;
 
-        public HotelsSqlRepositoryTest()
+        public HotelsSqlRepositoryTest() : base()
         {
+            _pgOptionsBuilder = new(_dbConfigurationFilePath);
+            _pgOptionsBuilder.DatabaseName = "ReservationHotelsTest";
+
             Assert.True(File.Exists(_dbConfigurationFilePath));
 
-            PgDbContextOptions pgOptionsBuilder = new(_dbConfigurationFilePath);
+            using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            {
+                dbContext.Database.EnsureDeleted();
+                dbContext.Database.EnsureCreated();
+                dbContext.SaveChanges();
+            }
 
             try
             {
-                _hotelsRepository = new HotelsSqlRepository(pgOptionsBuilder.GetOptions());
-
-                using (SqlDatabaseContext dbContext = new(pgOptionsBuilder.GetOptions()))
-                {
-                    dbContext.Database.EnsureDeleted();
-                    dbContext.SaveChanges();
-                }
+                _hotelsRepository = new HotelsSqlRepository(_pgOptionsBuilder.GetOptions());
             }
             catch (Exception ex)
             {
@@ -31,11 +34,19 @@ namespace Hotels.xUnitTests
             }
         }
 
+        public void Dispose()
+        {
+            using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            {
+                dbContext.Database.EnsureDeleted();
+                dbContext.SaveChanges();
+            }
+        }
+
         [Fact]
         public async Task TestHotelNotExist()
         {
             Hotel? hotel = await _hotelsRepository.Get(-1);
-
             Assert.True(hotel == null);
         }
 

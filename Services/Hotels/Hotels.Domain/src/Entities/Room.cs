@@ -6,8 +6,9 @@ namespace Hotels.Domain.Entities
 	/// </summary>
 	public class Room
 	{
-		public long Id { get; set; }
-		public long HotelId { get; set; }
+		public long Id { get; set; } = 0;
+		public long HotelId { get; set; } = 0;
+		public Hotel? Hotel { get; set; } = null;
 		/// <summary>
 		/// Порядковый номер
 		/// </summary>
@@ -15,11 +16,11 @@ namespace Hotels.Domain.Entities
 		/// <summary>
 		/// Вместимость - количество людей, которые могут свободно проживать в номере
 		/// </summary>
-		public int Capacity { get; set; }
+		public int Capacity { get; set; } = 1;
 		/// <summary>
 		/// Уровень комфорта
 		/// </summary>
-		public int ComfortLevel { get; set; }
-		public decimal Price { get; set; }
+		public int ComfortLevel { get; set; } = 1;
+		public decimal Price { get; set; } = decimal.Zero;
 	}
 }

@@ -19,6 +19,11 @@ namespace Hotels.WebApi
 
             builder.Services.AddSingleton(hotelsRepository);
             builder.Services.AddSingleton<IHotelsService, HotelsService>();
+
+            IRoomsRepository roomsRepository = new RoomsSqlRepository(pgOptions.GetOptions());
+
+            builder.Services.AddSingleton(roomsRepository);
+            builder.Services.AddSingleton<IRoomsService, RoomsService>();
             
             builder.Services.AddControllers();
 

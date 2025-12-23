@@ -14,5 +14,7 @@ namespace Hotels.Domain.Entities
         public string Address { get; set; } = "";
         public string Phone { get; set; } = "";
         public string Email { get; set; } = "";
+
+        public List<Room> Rooms { get; set; } = new();
     }
 }

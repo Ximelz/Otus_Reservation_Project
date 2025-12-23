@@ -13,14 +13,14 @@ namespace Hotels.Infrastructure
         public SqlDatabaseContext(DbContextOptions<SqlDatabaseContext> options) : base(options)
         {
             Database.EnsureCreated();
-            //Database.EnsureDeleted();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            //modelBuilder.Entity<Hotel>().HasMany(h => h.Rooms);
+            modelBuilder.Entity<Hotel>().HasMany(h => h.Rooms);
+            modelBuilder.Entity<Room>().HasOne(r => r.Hotel);
             //modelBuilder.Entity<Hotel>().HasOne(h => h.Country);
         }
 

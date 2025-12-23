@@ -26,9 +26,16 @@ namespace Hotels.WebApi.Controllers
 
         // POST api/<HotelsController>
         [HttpPost]
-        public async Task Post(Hotel value)
+        public async Task Post(Hotel hotel)
         {
-            await _hotelsService.Add(value);
+            if (await _hotelsService.Get(hotel.Id) == null)
+            {
+                await _hotelsService.Add(hotel);
+            }
+            else
+            {
+                await _hotelsService.Update(hotel);
+            }
         }
 
         // DELETE api/<HotelsController>/5

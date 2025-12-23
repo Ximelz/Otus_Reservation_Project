@@ -1,21 +1,21 @@
 ﻿using Hotels.Domain.Entities;
 
-namespace Hotels.Domain.src.Services
+namespace Hotels.Domain.Services
 {
     /// <summary>
     /// Менеджер номеров
     /// </summary>
-    internal interface IRoomsService
+    public interface IRoomsService
     {
-        void Add(Room room);
-        void Remove(long roomId);
-        void RemoveAll(long hotelId);
-        void Update(Room room);
-        Room? Get(long roomId);
+        Task Add(Room room);
+        Task Remove(long roomId);
+        Task RemoveAll(long hotelId);
+        Task Update(Room room);
+        Task<Room?> Get(long roomId);
 
-        IReadOnlyList<Room> GetAllByHotel(long hotelId);
-        IReadOnlyList<Room> GetAllByComfortLevel(long hotelId, int minComfortLevel, int maxComfortLevel);
-        IReadOnlyList<Room> GetAllByCapacity(long hotelId, int minCapacity, int maxCapacity);
-        IReadOnlyList<Room> GetAllByPrice(long hotelId, decimal minPrice, decimal maxPrice);
+        Task<IReadOnlyList<Room>> GetAllByHotel(long hotelId);
+        Task<IReadOnlyList<Room>> GetAllByComfortLevel(long hotelId, int minComfortLevel, int maxComfortLevel);
+        Task<IReadOnlyList<Room>> GetAllByCapacity(long hotelId, int minCapacity, int maxCapacity);
+        Task<IReadOnlyList<Room>> GetAllByPrice(long hotelId, decimal minPrice, decimal maxPrice);
     }
 }

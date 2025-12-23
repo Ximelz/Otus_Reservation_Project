@@ -28,7 +28,7 @@ namespace Hotels.Infrastructure.Repositories
         {
             using (SqlDatabaseContext dbContext = new(_dbContextOptions))
             {
-                var query = dbContext.Set<Hotel>().AsQueryable();
+                var query = dbContext.Set<Hotel>().Include(h => h.Rooms).AsQueryable();
                 return await query.SingleOrDefaultAsync(h => h.Id == hotelId);
             }
         }
