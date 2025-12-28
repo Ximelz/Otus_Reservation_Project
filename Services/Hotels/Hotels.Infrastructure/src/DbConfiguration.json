@@ -1,0 +1,9 @@
+{
+    "ConnectionData": {
+        "UserId": "postgres",
+        "Password": "****",
+        "Host": "localhost",
+        "Port": "5432",
+        "Database": "Reservation"
+    }
+}
