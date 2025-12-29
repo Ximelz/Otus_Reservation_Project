@@ -26,7 +26,7 @@ public class AppDbContext : DbContext
             .HasMin(1000000000L);
 
         // Опционально: настройка модели
-        modelBuilder.Entity<CustomerDto>(entity =>
+        modelBuilder.Entity<Customer>(entity =>
         {
             // Ключи
             entity.HasKey(e => e.Id);
@@ -39,7 +39,7 @@ public class AppDbContext : DbContext
 
             entity.Property(e => e.UserId)
                 .IsRequired()
-                .HasDefaultValueSql("nextval('\"user_id_seq\"')");
+                .HasDefaultValueSql("nextval('\"user_id_seq\"'::regclass)");
             // Для Npgsql можно так: .HasDefaultValueSql("nextval('user_id_seq')")
 
             entity.Property(e => e.FullName)

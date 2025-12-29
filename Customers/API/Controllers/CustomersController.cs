@@ -23,44 +23,6 @@ namespace Customers.API.Controllers
             _logger = logger;
         }
 
-/*
-        // GET: api/customers
-        [HttpGet]
-        public ActionResult<IEnumerable<CustomerDto>> GetCustomers(
-            [FromQuery] long? userId = null,
-            [FromQuery] string? fullName = null,
-            [FromQuery] string? phone = null)
-        {
-            try
-            {
-                
-                IQueryable<Customer> query = _context.Customers;
-
-                if (userId.HasValue)
-                    query = query.Where(c => c.UserId == userId.Value);
-
-                if (!string.IsNullOrWhiteSpace(fullName))
-                    query = query.Where(c => c.FullName.Contains(fullName));
-
-                if (!string.IsNullOrWhiteSpace(phone))
-                    query = query.Where(c => c.Phone.Contains(phone));
-
-                var customers = query
-                    .OrderByDescending(c => c.CreatedAt)
-                    //.Select(c => MapToDto(c))
-                    .Select(c => c)
-                    .ToList();
-
-
-                return Ok(customers);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Ошибка при получении клиентов");
-                return StatusCode(500, "Произошла ошибка");
-            }
-        }
-*/
 
         // GET: api/customers
         // GET: api/customers?userId=123
@@ -68,6 +30,7 @@ namespace Customers.API.Controllers
         // GET: api/customers?phone=+123456789
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> GetCustomers(
+            [FromQuery] string? Id = null,
             [FromQuery] long? userId = null,
             [FromQuery] string? fullName = null,
             [FromQuery] string? phone = null)
@@ -78,6 +41,11 @@ namespace Customers.API.Controllers
                 IQueryable<Customer> query = _context.Customers.AsQueryable();
 
                 // Применяем фильтры
+                if (!string.IsNullOrWhiteSpace(Id))
+                {
+                    query = query.Where(c => c.Id == Guid.Parse(Id));
+                }
+
                 if (userId.HasValue)
                 {
                     query = query.Where(c => c.UserId == userId.Value);
