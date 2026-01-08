@@ -19,9 +19,15 @@ namespace Hotels.WebApi.Controllers
 
         // GET api/<HotelsController>/5
         [HttpGet("{id}")]
-        public async Task<Hotel?> Get(long id)
+        public async Task<Hotel?> Get(string id)
         {
-            return await _hotelsService.Get(id);
+            Guid hotelId = Guid.Empty;
+            if (!Guid.TryParse(id, out hotelId))
+            {
+                return null;
+            }
+
+            return await _hotelsService.Get(hotelId);
         }
 
         // POST api/<HotelsController>
@@ -40,7 +46,7 @@ namespace Hotels.WebApi.Controllers
 
         // DELETE api/<HotelsController>/5
         [HttpDelete("{id}")]
-        public async Task Delete(long id)
+        public async Task Delete(Guid id)
         {
             await _hotelsService.Remove(id);
         }

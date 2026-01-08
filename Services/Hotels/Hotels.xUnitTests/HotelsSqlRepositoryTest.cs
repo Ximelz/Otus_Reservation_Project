@@ -36,15 +36,15 @@ namespace Hotels.xUnitTests
         {
             using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
             {
-                dbContext.Database.EnsureDeleted();
-                dbContext.SaveChanges();
+                //dbContext.Database.EnsureDeleted();
+                //dbContext.SaveChanges();
             }
         }
 
         [Fact]
         public async Task TestHotelNotExist()
         {
-            Hotel? hotel = await _hotelsRepository.Get(-1);
+            Hotel? hotel = await _hotelsRepository.Get(Guid.Empty);
             Assert.True(hotel == null);
         }
 
@@ -53,7 +53,6 @@ namespace Hotels.xUnitTests
         {
             Hotel newHotel = new();
 
-            // ставим уникальное имя, по которому будем искать добавленную запись
             newHotel.Name = "Astoria";
             newHotel.Stars = 5;
             newHotel.Address = "Gus Hrustalniy, Central Street, 177";
@@ -78,7 +77,6 @@ namespace Hotels.xUnitTests
 
             Hotel newHotel2 = new();
 
-            // ставим уникальное имя, по которому будем искать добавленную запись
             newHotel2.Name = "Astoria";
             newHotel2.Stars = 5;
             newHotel2.Address = "Gus Hrustalniy, Central Street, 177";
@@ -129,7 +127,7 @@ namespace Hotels.xUnitTests
             newHotel.Phone = "+74924123377";
             newHotel.Email = "service@gh-astoria-hotel.ru";
 
-            long id = 0;
+            Guid id = Guid.Empty;
             // добавление записи отеля
             try
             {

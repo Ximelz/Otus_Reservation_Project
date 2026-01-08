@@ -17,16 +17,18 @@ namespace Hotels.Infrastructure.Repositories
         {
             using (SqlDatabaseContext dbContext = new(_dbContextOptions))
             {
+                room.Id = Guid.NewGuid();
                 await dbContext.AddAsync(room);
                 await dbContext.SaveChangesAsync();
             }
         }
 
-        public async Task Remove(long roomId)
+        public async Task Remove(Guid roomId)
         {
             using (SqlDatabaseContext dbContext = new(_dbContextOptions))
             {
-                var query = dbContext.Set<Room>().AsQueryable().Where(r => r.Id == roomId);
+                var query = dbContext.Set<Room>()
+                            .Where(r => r.Id == roomId);
                 await query.ExecuteDeleteAsync();
                 await dbContext.SaveChangesAsync();
             }
@@ -56,7 +58,7 @@ namespace Hotels.Infrastructure.Repositories
             }
         }
 
-        public async Task<Room?> Get(long roomId)
+        public async Task<Room?> Get(Guid roomId)
         {
             using (SqlDatabaseContext dbContext = new(_dbContextOptions))
             {
@@ -64,11 +66,14 @@ namespace Hotels.Infrastructure.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<Room>> GetAllByHotel(long hotelId)
+        public async Task<IReadOnlyList<Room>> GetAllByHotel(Guid hotelId)
         {
             using (SqlDatabaseContext dbContext = new(_dbContextOptions))
             {
-                return await dbContext.Set<Room>().Where(r => r.HotelId == hotelId).ToListAsync();
+                return await dbContext.Set<Room>()
+                             .AsQueryable()
+                             .Where(r => r.HotelId == hotelId)
+                             .ToListAsync();
             }
         }
     }

@@ -5,9 +5,9 @@ namespace Hotels.Domain.Services
     public interface IHotelsService
     {
         Task Add(Hotel hotel);
-        Task Remove(long hotelId);
+        Task Remove(Guid hotelId);
         Task Update(Hotel hotel);
-        Task<Hotel?> Get(long hotelId);
+        Task<Hotel?> Get(Guid hotelId);
 
         Task<IReadOnlyList<Hotel>> GetAllByCountry(int countryId);
         Task<IReadOnlyList<Hotel>> GetAllByStars(HashSet<int> stars);
