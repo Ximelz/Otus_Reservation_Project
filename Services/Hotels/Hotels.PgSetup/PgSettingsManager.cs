@@ -2,6 +2,18 @@
 
 namespace Hotels.Setup
 {
+    /// Настройки подключения к БД PostgreSQL. 
+    /// Хранятся в реестре: HKEY_CURRENT_USER/Environment.
+    /// Название переменной: Otus-Reservation-hotels
+    /// Значение - строка с набором настроек:
+    /// - userId
+    /// - host
+    /// - port
+    /// - password
+    /// - databaseName
+    /// 
+    /// Например:userId=postgre;host=127.0.0.1;port=5432;password=2345;databaseName=hotels
+
     public class PgSettingsManager
     {
         private Dictionary<string, string> _settings = new();
