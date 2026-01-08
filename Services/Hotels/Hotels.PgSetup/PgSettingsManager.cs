@@ -4,6 +4,8 @@ namespace Hotels.Setup
 {
     public class PgSettingsManager
     {
+        private Dictionary<string, string> _settings = new();
+
         public string UserId
         {
             get => _settings["userId"];
@@ -33,7 +35,7 @@ namespace Hotels.Setup
         private static string ENV_VAR_NAME = "Otus-Reservation-hotels";
         private static string ENV_VARS_SEPARATOR = "#$%";
         private static string ENV_VAR_SEPARATOR = "=";
-        private Dictionary<string, string> _settings = new();
+        
 
         public PgSettingsManager()
         {
@@ -44,11 +46,11 @@ namespace Hotels.Setup
         {
             _settings.Clear();
 
-            _settings["userid"] = "postgres";
+            _settings["userId"] = "postgres";
             _settings["password"] = "";
             _settings["host"] = "127.0.0.1";
             _settings["port"] = "5432";
-            _settings["databasename"] = "hotels";
+            _settings["databaseName"] = "hotels";
         }
 
         public bool ReadSettings()

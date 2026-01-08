@@ -5,7 +5,7 @@ using Hotels.Infrastructure.Repositories;
 
 namespace Hotels.xUnitTests
 {
-    public class RoomsSqlRepositoryTest : BaseSqlRepositoryTest, IDisposable
+    public class RoomsSqlRepositoryTest : IDisposable
     {
         private IRoomsRepository _roomsRepository;
         private IHotelsRepository _hotelsRepository;
@@ -13,9 +13,7 @@ namespace Hotels.xUnitTests
 
         public RoomsSqlRepositoryTest() : base()
         {
-            Assert.True(File.Exists(_dbConfigurationFilePath));
-
-            _pgOptionsBuilder = new(_dbConfigurationFilePath);
+            _pgOptionsBuilder = new();
             _pgOptionsBuilder.DatabaseName = "ReservationRoomsTest";
 
             using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))

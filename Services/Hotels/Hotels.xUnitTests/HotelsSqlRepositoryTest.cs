@@ -5,17 +5,15 @@ using Hotels.Infrastructure.Repositories;
 
 namespace Hotels.xUnitTests
 {
-    public class HotelsSqlRepositoryTest : BaseSqlRepositoryTest, IDisposable
+    public class HotelsSqlRepositoryTest : IDisposable
     {
         private IHotelsRepository _hotelsRepository;
         private PgDbContextOptions _pgOptionsBuilder;
 
         public HotelsSqlRepositoryTest() : base()
         {
-            _pgOptionsBuilder = new(_dbConfigurationFilePath);
+            _pgOptionsBuilder = new();
             _pgOptionsBuilder.DatabaseName = "ReservationHotelsTest";
-
-            Assert.True(File.Exists(_dbConfigurationFilePath));
 
             using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
             {

@@ -14,7 +14,7 @@ namespace Hotels.WebApi
 
             // Add services to the container.
 
-            PgDbContextOptions pgOptions = new("./DbConfiguration.json");
+            PgDbContextOptions pgOptions = new();
             IHotelsRepository hotelsRepository = new HotelsSqlRepository(pgOptions.GetOptions());
 
             builder.Services.AddSingleton(hotelsRepository);
