@@ -32,7 +32,7 @@ namespace Hotels.Infrastructure
             set => _pgSettings.DatabaseName = value;
         }
 
-        private readonly PgSettingsManager _pgSettings = new();
+        private PgSettingsManager _pgSettings = new();
 
         public PgDbContextOptions()
         {
@@ -51,7 +51,7 @@ namespace Hotels.Infrastructure
             return optionsBuilder.UseNpgsql(GetConnectionString());
         }
 
-        private string GetConnectionString()
+        public string GetConnectionString()
         {
             return $"User ID={UserId};Password={Password};Host={Host};Port={Port};Database={DatabaseName}";
         }
