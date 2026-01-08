@@ -1,20 +1,39 @@
 ﻿using System.Text;
 
-namespace Hotels.PgSetup
+namespace Hotels.Setup
 {
     public class PgSettingsManager
     {
-        public string UserId { get; set; } = "postgres";
-        public string Password { get; set; } = "";
-        public string Host { get; set; } = "127.0.0.1";
-        public int Port { get; set; } = 5432;
-        public string DatabaseName { get; set; } = "Hotels";
+        public string UserId
+        {
+            get => _settings["userId"];
+            set => _settings["userId"] = value;
+        }
+        public string Password
+        {
+            get => _settings["password"];
+            set => _settings["password"] = value;
+        }
+        public string Host
+        {
+            get => _settings["host"];
+            set => _settings["host"] = value;
+        }
+        public string Port
+        {
+            get => _settings["port"];
+            set => _settings["port"] = value;
+        }
+        public string DatabaseName
+        {
+            get => _settings["databaseName"];
+            set => _settings["databaseName"] = value;
+        }
 
         private static string ENV_VAR_NAME = "Otus-Reservation-hotels";
         private static string ENV_VARS_SEPARATOR = "#$%";
         private static string ENV_VAR_SEPARATOR = "=";
         private Dictionary<string, string> _settings = new();
-
 
         public PgSettingsManager()
         {
@@ -32,33 +51,7 @@ namespace Hotels.PgSetup
             _settings["databasename"] = "hotels";
         }
 
-
-        public void SetUserId(string userId)
-        {
-            _settings["userid"] = userId;
-        }
-
-        public void SetHost(string host)
-        {
-            _settings["host"] = host;
-        }
-
-        public void SetPort(string port)
-        {
-            _settings["port"] = port;
-        }
-
-        public void SetPassword(string password)
-        {
-            _settings["password"] = password;
-        }
-
-        public void SetDatabaseName(string databaseName)
-        {
-            _settings["databasename"] = databaseName;
-        }
-
-        public void ReadSettings()
+        public bool ReadSettings()
         {
             _settings.Clear();
 
@@ -70,7 +63,7 @@ namespace Hotels.PgSetup
 
                 Console.WriteLine("Hotels' service: PostgreSQL settings is empty.");
 
-                return;
+                return false;
             }
 
             foreach (var setting in settings.Split(ENV_VARS_SEPARATOR))
@@ -89,6 +82,8 @@ namespace Hotels.PgSetup
 
                 _settings[vals[0]] = vals[1];
             }
+
+            return true;
         }
 
         public void WriteSettings()

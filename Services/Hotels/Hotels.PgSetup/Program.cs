@@ -1,4 +1,6 @@
-﻿namespace Hotels.PgSetup
+﻿using Hotels.Setup;
+
+namespace Hotels.PgSetup
 {
     /// <summary>
     /// 
@@ -56,7 +58,7 @@
                                 continue;
                             }
 
-                            pgset.SetUserId(userid);
+                            pgset.UserId = userid;
                             break;
                         }
                     case '2':
@@ -72,7 +74,7 @@
                                 continue;
                             }
 
-                            pgset.SetHost(host);
+                            pgset.Host = host;
                             break;
                         }
                     case '3':
@@ -96,9 +98,8 @@
 
                                 continue;
                             }
-                                
 
-                            pgset.SetUserId(port.ToString());
+                            pgset.Port = port.ToString();
                             break;
                         }
                     case '4':
@@ -108,11 +109,11 @@
 
                             if (string.IsNullOrEmpty(psw))
                             {
-                                pgset.SetPassword(string.Empty);
+                                pgset.Password = string.Empty;
                             }
                             else
                             {
-                                pgset.SetPassword(psw);
+                                pgset.Password = psw;
                             }
                             
                             break;
@@ -130,7 +131,7 @@
                                 continue;
                             }
 
-                            pgset.SetDatabaseName(name);
+                            pgset.DatabaseName = name;
 
                             break;
                         }
