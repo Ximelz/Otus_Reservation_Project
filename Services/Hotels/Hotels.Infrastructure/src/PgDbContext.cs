@@ -10,12 +10,15 @@ namespace Hotels.Infrastructure
         public DbSet<Room> Rooms => Set<Room>();
         public DbSet<Country> Countries => Set<Country>();
 
+        private PgDbContextOptions _pgOptions;
+
         //public SqlDatabaseContext()
         //{
         //}
 
-        public PgDbContext(DbContextOptions<PgDbContext> options) : base(options)
+        public PgDbContext(PgDbContextOptions options) : base(options.GetOptions())
         {
+            _pgOptions = options;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -126,6 +129,8 @@ namespace Hotels.Infrastructure
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            _pgOptions.ConfigureOptionsBuilder(optionsBuilder);
+
             optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
         }
     }

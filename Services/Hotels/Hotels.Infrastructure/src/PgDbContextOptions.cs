@@ -47,13 +47,19 @@ namespace Hotels.Infrastructure
         public DbContextOptionsBuilder<PgDbContext> GetOptionsBuilder()
         {
             var optionsBuilder = new DbContextOptionsBuilder<PgDbContext>();
+            ConfigureOptionsBuilder(optionsBuilder);
 
-            return optionsBuilder.UseNpgsql(GetConnectionString());
+            return optionsBuilder;
         }
 
         public string GetConnectionString()
         {
             return $"User ID={UserId};Password={Password};Host={Host};Port={Port};Database={DatabaseName}";
+        }
+
+        public void ConfigureOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseNpgsql(GetConnectionString());
         }
     }
 }

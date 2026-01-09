@@ -16,7 +16,7 @@ namespace Hotels.xUnitTests
             _pgOptionsBuilder = new();
             _pgOptionsBuilder.DatabaseName = "ReservationRoomsTest";
 
-            using (PgDbContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            using (PgDbContext dbContext = new(_pgOptionsBuilder))
             {
                 dbContext.Database.EnsureDeleted();
                 dbContext.Database.EnsureCreated();
@@ -25,8 +25,8 @@ namespace Hotels.xUnitTests
 
             try
             {
-                _roomsRepository = new RoomsSqlRepository(_pgOptionsBuilder.GetOptions());
-                _hotelsRepository = new HotelsSqlRepository(_pgOptionsBuilder.GetOptions());
+                _roomsRepository = new RoomsSqlRepository(_pgOptionsBuilder);
+                _hotelsRepository = new HotelsSqlRepository(_pgOptionsBuilder);
             }
             catch (Exception ex)
             {
@@ -36,7 +36,7 @@ namespace Hotels.xUnitTests
 
         public void Dispose()
         {
-            using (PgDbContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            using (PgDbContext dbContext = new(_pgOptionsBuilder))
             {
                 dbContext.Database.EnsureDeleted();
                 dbContext.SaveChanges();
