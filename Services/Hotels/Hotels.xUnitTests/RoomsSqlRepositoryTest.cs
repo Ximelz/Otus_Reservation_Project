@@ -16,7 +16,7 @@ namespace Hotels.xUnitTests
             _pgOptionsBuilder = new();
             _pgOptionsBuilder.DatabaseName = "ReservationRoomsTest";
 
-            using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            using (PgDbContext dbContext = new(_pgOptionsBuilder.GetOptions()))
             {
                 dbContext.Database.EnsureDeleted();
                 dbContext.Database.EnsureCreated();
@@ -36,7 +36,7 @@ namespace Hotels.xUnitTests
 
         public void Dispose()
         {
-            using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            using (PgDbContext dbContext = new(_pgOptionsBuilder.GetOptions()))
             {
                 dbContext.Database.EnsureDeleted();
                 dbContext.SaveChanges();

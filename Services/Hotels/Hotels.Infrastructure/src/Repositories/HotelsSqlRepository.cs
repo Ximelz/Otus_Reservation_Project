@@ -6,16 +6,16 @@ namespace Hotels.Infrastructure.Repositories
 {
     public class HotelsSqlRepository : IHotelsRepository
     {
-        private readonly DbContextOptions<SqlDatabaseContext> _dbContextOptions;
+        private readonly DbContextOptions<PgDbContext> _dbContextOptions;
 
-        public HotelsSqlRepository(DbContextOptions<SqlDatabaseContext> dbContextOptions)
+        public HotelsSqlRepository(DbContextOptions<PgDbContext> dbContextOptions)
         {
             _dbContextOptions = dbContextOptions;
         }
 
         public async Task<Guid> Add(Hotel hotel)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_dbContextOptions))
             {
                 hotel.Id = Guid.NewGuid();
                 await dbContext.AddAsync(hotel);
@@ -27,7 +27,7 @@ namespace Hotels.Infrastructure.Repositories
 
         public async Task<Hotel?> Get(Guid hotelId)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_dbContextOptions))
             {
                 return await dbContext.Set<Hotel>().SingleOrDefaultAsync(h => h.Id == hotelId);
             }
@@ -35,7 +35,7 @@ namespace Hotels.Infrastructure.Repositories
         
         public async Task Remove(Guid hotelId)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_dbContextOptions))
             {
                 var query = dbContext
                                 .Set<Hotel>().AsQueryable()
@@ -53,7 +53,7 @@ namespace Hotels.Infrastructure.Repositories
                 return;
             }
 
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_dbContextOptions))
             {
                 repHotel.Name = hotel.Name;
                 repHotel.Phone = hotel.Phone;
@@ -70,7 +70,7 @@ namespace Hotels.Infrastructure.Repositories
 
         public async Task<IReadOnlyList<Hotel>> GetAllByCountry(int countryId)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_dbContextOptions))
             {
                 var query = dbContext.Set<Hotel>().AsQueryable();
                 return await query
@@ -81,7 +81,7 @@ namespace Hotels.Infrastructure.Repositories
 
         public async Task<IReadOnlyList<Hotel>> GetAllByStars(HashSet<int> stars)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_dbContextOptions))
             {
                 var query = dbContext.Set<Hotel>().AsQueryable();
                 return await query

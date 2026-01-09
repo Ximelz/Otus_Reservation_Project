@@ -39,14 +39,14 @@ namespace Hotels.Infrastructure
             _pgSettings.ReadSettings();
         }
 
-        public DbContextOptions<SqlDatabaseContext> GetOptions()
+        public DbContextOptions<PgDbContext> GetOptions()
         {
             return GetOptionsBuilder().Options;
         }
          
-        public DbContextOptionsBuilder<SqlDatabaseContext> GetOptionsBuilder()
+        public DbContextOptionsBuilder<PgDbContext> GetOptionsBuilder()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<SqlDatabaseContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<PgDbContext>();
 
             return optionsBuilder.UseNpgsql(GetConnectionString());
         }

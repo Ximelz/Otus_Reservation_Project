@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Hotels.Infrastructure.Migrations
 {
-    [DbContext(typeof(SqlDatabaseContext))]
+    [DbContext(typeof(PgDbContext))]
     partial class SqlDatabaseContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

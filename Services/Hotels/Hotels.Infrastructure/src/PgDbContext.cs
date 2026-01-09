@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Hotels.Infrastructure
 {
-    public class SqlDatabaseContext : DbContext
+    public class PgDbContext : DbContext
     {
         public DbSet<Hotel> Hotels => Set<Hotel>();
         public DbSet<Room> Rooms => Set<Room>();
@@ -14,7 +14,7 @@ namespace Hotels.Infrastructure
         //{
         //}
 
-        public SqlDatabaseContext(DbContextOptions<SqlDatabaseContext> options) : base(options)
+        public PgDbContext(DbContextOptions<PgDbContext> options) : base(options)
         {
         }
 
