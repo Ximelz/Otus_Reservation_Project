@@ -43,7 +43,7 @@ namespace Hotels.Infrastructure
         {
             return GetOptionsBuilder().Options;
         }
-
+         
         public DbContextOptionsBuilder<SqlDatabaseContext> GetOptionsBuilder()
         {
             var optionsBuilder = new DbContextOptionsBuilder<SqlDatabaseContext>();

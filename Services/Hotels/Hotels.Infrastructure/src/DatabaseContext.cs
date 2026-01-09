@@ -10,13 +10,12 @@ namespace Hotels.Infrastructure
         public DbSet<Room> Rooms => Set<Room>();
         public DbSet<Country> Countries => Set<Country>();
 
-        public SqlDatabaseContext()
-        {
-        }
+        //public SqlDatabaseContext()
+        //{
+        //}
 
         public SqlDatabaseContext(DbContextOptions<SqlDatabaseContext> options) : base(options)
         {
-            //Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -123,16 +122,10 @@ namespace Hotels.Infrastructure
                       .HasColumnType("text")
                       .IsRequired();
             });
-            //modelBuilder.Entity<Hotel>().HasMany(h => h.Rooms).WithOne(r => r.Hotel);
-            //modelBuilder.Entity<Room>().HasOne(r => r.Hotel);
-            //modelBuilder.Entity<Hotel>().HasOne(h => h.Country);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            PgDbContextOptions pgOptions = new();
-            optionsBuilder.UseNpgsql(pgOptions.GetConnectionString());
-
             optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
         }
     }

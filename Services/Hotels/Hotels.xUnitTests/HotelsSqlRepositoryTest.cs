@@ -15,7 +15,7 @@ namespace Hotels.xUnitTests
             _pgOptionsBuilder = new();
             _pgOptionsBuilder.DatabaseName = "ReservationHotelsTest";
 
-            using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            using (SqlDatabaseContext dbContext = new SqlDatabaseContext(_pgOptionsBuilder.GetOptions()))
             {
                 dbContext.Database.EnsureDeleted();
                 dbContext.Database.EnsureCreated();
@@ -36,8 +36,8 @@ namespace Hotels.xUnitTests
         {
             using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
             {
-                //dbContext.Database.EnsureDeleted();
-                //dbContext.SaveChanges();
+                dbContext.Database.EnsureDeleted();
+                dbContext.SaveChanges();
             }
         }
 
@@ -204,7 +204,7 @@ namespace Hotels.xUnitTests
             newHotel.Name = "Astoria";
             newHotel.Stars = 5;
             newHotel.Address = "Gus Hrustalniy, Central Street, 177";
-            newHotel.CountryId = 1;
+            newHotel.CountryId = 643;
             newHotel.Phone = "+74924123377";
             newHotel.Email = "service@gh-astoria-hotel.ru";
 
@@ -222,7 +222,7 @@ namespace Hotels.xUnitTests
             IReadOnlyList<Hotel> hotels = new List<Hotel>();
             try
             {
-                hotels = await _hotelsRepository.GetAllByCountry(1);
+                hotels = await _hotelsRepository.GetAllByCountry(643);
             }
             catch (Exception ex)
             {
@@ -246,7 +246,7 @@ namespace Hotels.xUnitTests
             newHotel.Name = "Astoria";
             newHotel.Stars = 5;
             newHotel.Address = "Gus Hrustalniy, Central Street, 177";
-            newHotel.CountryId = 1;
+            newHotel.CountryId = 643;
             newHotel.Phone = "+74924123377";
             newHotel.Email = "service@gh-astoria-hotel.ru";
 
