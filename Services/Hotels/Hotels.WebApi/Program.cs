@@ -3,6 +3,7 @@ using Hotels.Domain.Services;
 using Hotels.Infrastructure;
 using Hotels.Infrastructure.Repositories;
 using Hotels.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hotels.WebApi
 {
@@ -15,6 +16,12 @@ namespace Hotels.WebApi
             // Add services to the container.
 
             PgDbContextOptions pgOptions = new();
+
+            using (PgDbContext pgContext = new PgDbContext(pgOptions))
+            {
+                pgContext.Database.Migrate();
+            }
+
             IHotelsRepository hotelsRepository = new HotelsSqlRepository(pgOptions);
 
             builder.Services.AddSingleton(hotelsRepository);
@@ -24,7 +31,12 @@ namespace Hotels.WebApi
 
             builder.Services.AddSingleton(roomsRepository);
             builder.Services.AddSingleton<IRoomsService, RoomsService>();
-            
+
+            IRoomTypesRepository roomTypesRepository = new RoomTypesSqlRepository(pgOptions);
+
+            builder.Services.AddSingleton(roomTypesRepository);
+            builder.Services.AddSingleton<IRoomTypesService, RoomTypesService>();
+
             builder.Services.AddControllers();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -36,7 +48,8 @@ namespace Hotels.WebApi
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
+                app.UseSwagger(
+                    c => c.OpenApiVersion = Microsoft.OpenApi.OpenApiSpecVersion.OpenApi2_0);
                 app.UseSwaggerUI();
             }
 
