@@ -3,6 +3,7 @@ using Hotels.Domain.Services;
 using Hotels.Infrastructure;
 using Hotels.Infrastructure.Repositories;
 using Hotels.Infrastructure.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hotels.WebApi
 {
@@ -15,6 +16,11 @@ namespace Hotels.WebApi
             // Add services to the container.
 
             PgDbContextOptions pgOptions = new();
+
+            using (PgDbContext pgContext = new PgDbContext(pgOptions))
+            {
+                pgContext.Database.Migrate();
+            }
 
             IHotelsRepository hotelsRepository = new HotelsSqlRepository(pgOptions);
 
