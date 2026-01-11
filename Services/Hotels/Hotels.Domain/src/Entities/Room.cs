@@ -25,6 +25,6 @@ namespace Hotels.Domain.Entities
 		/// <summary>
 		/// Уровень комфорта
 		/// </summary>
-		public int TypeId { get; set; } = 0;
+		public Guid TypeId { get; set; } = Guid.Empty;
 	}
 }
