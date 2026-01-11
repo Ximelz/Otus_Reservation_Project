@@ -15,6 +15,5 @@ namespace Hotels.Domain.Repositories
         Task<Room?> Get(Guid roomId);
 
         Task<IReadOnlyList<Room>> GetAllByHotel(Guid hotelId);
-        //Task<IReadOnlyList<Room>> GetAllBy(long hotelId, int capacitiy);
     }
 }

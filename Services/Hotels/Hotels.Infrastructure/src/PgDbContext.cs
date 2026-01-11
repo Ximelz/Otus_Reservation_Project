@@ -91,11 +91,6 @@ namespace Hotels.Infrastructure
                       .HasColumnType("text")
                       .IsRequired();
 
-                entity.Property(p => p.Capacity)
-                      .HasColumnName("capacity")
-                      .HasColumnType("integer")
-                      .HasDefaultValue(1);
-
                 entity.Property(p => p.IsEnabled)
                       .HasColumnName("is_enabled")
                       .HasColumnType("boolean")

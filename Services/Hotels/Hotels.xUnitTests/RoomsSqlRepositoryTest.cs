@@ -61,7 +61,6 @@ namespace Hotels.xUnitTests
                 Room newRoom = new();
                 newRoom.HotelId = newHotel.Id;
                 newRoom.Number = (i + 1).ToString();
-                newRoom.Capacity = 2;
 
                 await _roomsRepository.Add(newRoom);
             }
@@ -81,7 +80,6 @@ namespace Hotels.xUnitTests
                 Room newRoom = new();
                 newRoom.HotelId = newHotel.Id;
                 newRoom.Number = (i+1).ToString();
-                newRoom.Capacity = 2;
 
                 await _roomsRepository.Add(newRoom);
 
@@ -117,7 +115,6 @@ namespace Hotels.xUnitTests
                 Room newRoom = new();
                 newRoom.HotelId = newHotel.Id;
                 newRoom.Number = (i + 1).ToString();
-                newRoom.Capacity = 2;
 
                 await _roomsRepository.Add(newRoom);
 
