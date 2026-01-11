@@ -46,7 +46,7 @@ namespace Hotels.xUnitTests
         [Fact]
         public async Task TestTypeNotExist()
         {
-            RoomType? roomType = await _roomTypesRepository.Get(-1);
+            RoomType? roomType = await _roomTypesRepository.Get(Guid.Empty);
 
             Assert.True(roomType == null);
         }
@@ -97,7 +97,7 @@ namespace Hotels.xUnitTests
         {
             Guid newHotelId = Guid.NewGuid();
 
-            long roomTypeId = -1;
+            Guid roomTypeId = Guid.Empty;
             for (int i = 0; i < 3; i++)
             {
                 RoomType newRoomType = new();

@@ -33,7 +33,7 @@ namespace Hotels.Infrastructure.Repositories
                              .AsQueryable()
                              .Where(r => 
                                 r.HotelId == hotelId 
-                                && r.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
+                                && r.Name.Contains(name))
                              .ToListAsync();
             }
         }
