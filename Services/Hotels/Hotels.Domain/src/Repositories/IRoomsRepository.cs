@@ -15,7 +15,7 @@ namespace Hotels.Domain.Repositories
         Task<Room?> Get(Guid roomId);
 
         Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
-                                                     string comfortName = "", 
+                                                     string typeName = "", 
                                                      int capacity = 1, 
                                                      double minPrice = 0, 
                                                      double maxPrice = double.MaxValue);

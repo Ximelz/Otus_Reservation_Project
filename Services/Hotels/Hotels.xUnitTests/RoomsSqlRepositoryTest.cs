@@ -2,6 +2,7 @@
 using Hotels.Domain.Repositories;
 using Hotels.Infrastructure;
 using Hotels.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Hotels.xUnitTests
 {
@@ -208,6 +209,48 @@ namespace Hotels.xUnitTests
             rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, capacity: 0);
             Assert.Equal(9, rooms.Count);
         }
+
+        [Fact]
+        public async Task TestGetRoomsByType()
+        {
+            Hotel? newHotel = await CreateHotel();
+
+            Dictionary<int, RoomType> roomTypes = new();
+            for (int c = 1; c < 4; c++)
+            {
+                RoomType roomType = new();
+                roomType.HotelId = newHotel.Id;
+                roomType.Name = $"test{c}";
+                roomType.Description = "test description";
+                roomType.Capacity = c;
+
+                roomTypes[c] = roomType;
+                await _roomTypesRepository.Add(roomType);
+
+                for (int i = 0; i < 3; i++)
+                {
+                    Room newRoom = new();
+                    newRoom.HotelId = newHotel.Id;
+                    newRoom.TypeId = roomType.Id;
+                    newRoom.Number = (i + 1).ToString();
+
+                    await _roomsRepository.Add(newRoom);
+                }
+            }
+
+            var rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, capacity: 0, typeName: "test");
+            Assert.Equal(9, rooms.Count);
+
+            rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, typeName: "test1");
+            Assert.Equal(3, rooms.Count);
+
+            rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, capacity: 3, typeName: "test3");
+            Assert.Equal(3, rooms.Count);
+
+            rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, typeName: "test11");
+            Assert.Empty(rooms);
+        }
+
 
         private async Task<Hotel> CreateHotel()
         {

@@ -68,7 +68,7 @@ namespace Hotels.Infrastructure.Repositories
         }
 
         public async Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
-                                                                  string comfortName = "",
+                                                                  string typeName = "",
                                                                   int capacity = 1,
                                                                   double minPrice = 0,
                                                                   double maxPrice = double.MaxValue)
@@ -79,7 +79,7 @@ namespace Hotels.Infrastructure.Repositories
                             join roomType in dbContext.Set<RoomType>()
                             on room.TypeId equals roomType.Id
                             where (room.HotelId == hotelId)
-                                    && (string.IsNullOrEmpty(comfortName) || roomType.Name.Contains(comfortName))
+                                    && (string.IsNullOrEmpty(typeName) || roomType.Name.Contains(typeName))
                                     && (capacity == 0 || roomType.Capacity == capacity)
                             select room;
 

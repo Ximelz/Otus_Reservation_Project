@@ -24,12 +24,12 @@ namespace Hotels.Infrastructure.Services
         }
 
         public async Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
-                                                                  string comfortName = "",
+                                                                  string typeName = "",
                                                                   int capacity = 1,
                                                                   double minPrice = 0,
                                                                   double maxPrice = double.MaxValue)
         {
-            return await _roomsRepository.GetAllByParameters(hotelId, comfortName, capacity, minPrice, maxPrice);
+            return await _roomsRepository.GetAllByParameters(hotelId, typeName, capacity, minPrice, maxPrice);
         }
 
         public async Task Remove(Guid roomId)
