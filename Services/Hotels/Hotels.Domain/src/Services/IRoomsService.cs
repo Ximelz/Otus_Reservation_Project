@@ -12,9 +12,10 @@ namespace Hotels.Domain.Services
         Task Update(Room room);
         Task<Room?> Get(Guid roomId);
 
-        Task<IReadOnlyList<Room>> GetAllByHotel(Guid hotelId);
-        Task<IReadOnlyList<Room>> GetAllByComfortLevel(Guid hotelId, int minComfortLevel, int maxComfortLevel);
-        Task<IReadOnlyList<Room>> GetAllByCapacity(Guid hotelId, int minCapacity, int maxCapacity);
-        Task<IReadOnlyList<Room>> GetAllByPrice(Guid hotelId, decimal minPrice, decimal maxPrice);
+        Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
+                                                     string comfortName = "",
+                                                     int capacity = 1,
+                                                     double minPrice = 0,
+                                                     double maxPrice = double.MaxValue);
     }
 }

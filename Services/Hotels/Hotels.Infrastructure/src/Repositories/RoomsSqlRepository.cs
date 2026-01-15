@@ -1,6 +1,7 @@
 ﻿using Hotels.Domain.Entities;
 using Hotels.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Hotels.Infrastructure.Repositories
 {
@@ -66,14 +67,23 @@ namespace Hotels.Infrastructure.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<Room>> GetAllByHotel(Guid hotelId)
+        public async Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
+                                                                  string comfortName = "",
+                                                                  int capacity = 1,
+                                                                  double minPrice = 0,
+                                                                  double maxPrice = double.MaxValue)
         {
             using (PgDbContext dbContext = new(_pgContextOptions))
             {
-                return await dbContext.Set<Room>()
-                             .AsQueryable()
-                             .Where(r => r.HotelId == hotelId)
-                             .ToListAsync();
+                var query = from room in dbContext.Set<Room>()
+                            join roomType in dbContext.Set<RoomType>()
+                            on room.TypeId equals roomType.Id
+                            where (room.HotelId == hotelId)
+                                    && (string.IsNullOrEmpty(comfortName) || roomType.Name.Contains(comfortName))
+                                    && (capacity == 0 || roomType.Capacity == capacity)
+                            select room;
+
+                return await query.ToListAsync();
             }
         }
     }

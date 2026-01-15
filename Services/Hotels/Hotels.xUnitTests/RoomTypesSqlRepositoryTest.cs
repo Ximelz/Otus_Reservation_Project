@@ -8,7 +8,6 @@ namespace Hotels.xUnitTests
     public class RoomTypesSqlRepositoryTest : IDisposable
     {
         private IRoomTypesRepository _roomTypesRepository;
-        private IHotelsRepository _hotelsRepository;
         private PgDbContextOptions _pgOptionsBuilder;
 
         public RoomTypesSqlRepositoryTest() : base()
@@ -26,7 +25,6 @@ namespace Hotels.xUnitTests
             try
             {
                 _roomTypesRepository = new RoomTypesSqlRepository(_pgOptionsBuilder);
-                _hotelsRepository = new HotelsSqlRepository(_pgOptionsBuilder);
             }
             catch (Exception ex)
             {

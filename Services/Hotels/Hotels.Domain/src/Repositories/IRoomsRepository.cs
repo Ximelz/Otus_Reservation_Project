@@ -14,6 +14,10 @@ namespace Hotels.Domain.Repositories
         Task Update(Room room);
         Task<Room?> Get(Guid roomId);
 
-        Task<IReadOnlyList<Room>> GetAllByHotel(Guid hotelId);
+        Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
+                                                     string comfortName = "", 
+                                                     int capacity = 1, 
+                                                     double minPrice = 0, 
+                                                     double maxPrice = double.MaxValue);
     }
 }
