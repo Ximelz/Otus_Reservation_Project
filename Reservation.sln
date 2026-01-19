@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36908.2 d17.14
+VisualStudioVersion = 17.14.36908.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReservService", "Services\ReservService\ReservService.csproj", "{620ABA80-5AA4-4096-8F52-2AEC8FCCFA10}"
 EndProject
@@ -22,6 +22,22 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hotel", "Hotel", "{E07FED80-28B9-4CC1-BBDC-5EC53268F5FD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reserve", "Reserve", "{EE41E017-1CAD-4958-A7FE-28F457340BE9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Info", "Info", "{754FC069-D67B-A9D7-50A1-8D1CA196D8F1}"
+	ProjectSection(SolutionItems) = preProject
+		Info\admin.md = Info\admin.md
+		Info\architecture.md = Info\architecture.md
+		Info\customer.md = Info\customer.md
+		Info\gateway.md = Info\gateway.md
+		Info\hotel.md = Info\hotel.md
+		Info\identity.md = Info\identity.md
+		Info\notification.md = Info\notification.md
+		Info\rabbitmq.md = Info\rabbitmq.md
+		Info\README.md = Info\README.md
+		Info\reservation.md = Info\reservation.md
+		Info\scheduler.md = Info\scheduler.md
+		Info\Архитектура проекта.bmp = Info\Архитектура проекта.bmp
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
