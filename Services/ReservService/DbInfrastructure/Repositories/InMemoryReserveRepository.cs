@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.Reserve
+namespace ReservService
 {
     public class InMemoryReserveRepository : IReserveRepository
     {
-        public InMemoryReserveRepository() => reserves = new List<Reserve>();
-        private readonly List<Reserve> reserves;
+        private readonly List<Reserve> reserves = new List<Reserve>();
 
         public Task AddAsync(Reserve reserve, CancellationToken ct)
         {
@@ -59,5 +58,11 @@ namespace Core.Reserve
             return Task.FromResult(reserves.Where(predicate).ToList());
         }
 
+        public Task<List<Reserve>> GetAllAsync(CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            return Task.FromResult(reserves);
+        }
     }
 }
