@@ -37,7 +37,9 @@ namespace Hotels.Infrastructure.Repositories
                               && (name == "" || rp.Name.Contains(name))
                               && (minPrice == 0.0 || rp.Price >= minPrice)
                               && (maxPrice == 0.0 || rp.Price <= maxPrice)
-                            );
+                            )
+                    .OrderBy(rp => rp.HotelId)
+                    .OrderBy(rp => rp.Price);
 
                 return await query.ToListAsync();
             }
