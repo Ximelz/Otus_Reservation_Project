@@ -1,41 +1,3 @@
-<<<<<<<< HEAD:Domain/src/Core/HotelManage/Entities/Room.cs
-﻿
-namespace Core.Entities
-{
-	/// <summary>
-	/// Уровень комфорта в номере
-	/// </summary>
-	public enum ComfortLevel
-	{
-		First,
-		Second,
-		Third
-	}
-
-	/// <summary>
-	/// Номер в гостинице
-	/// </summary>
-	public class Room
-	{
-		public long Id { get; set; }
-		public long HotelId { get; set; }
-		/// <summary>
-		/// Порядковый номер
-		/// </summary>
-		public string Number { get; set; } = string.Empty;
-		/// <summary>
-		/// Вместимость - количество людей, которые могут свободно проживать в номере
-		/// </summary>
-		public int Capacity { get; set; }
-		/// <summary>
-		/// Уровень комфорта
-		/// </summary>
-		public ComfortLevel Level { get; set; }
-		public decimal Price { get; set; }
-	}
-}
-========
-﻿
 namespace Hotels.Domain.Entities
 {
 	/// <summary>
@@ -61,4 +23,3 @@ namespace Hotels.Domain.Entities
 		public decimal Price { get; set; } = decimal.Zero;
 	}
 }
->>>>>>>> develop:Services/Hotels/Hotels.Domain/src/Entities/Room.cs
