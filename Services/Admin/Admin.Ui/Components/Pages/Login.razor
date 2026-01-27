@@ -1,0 +1,241 @@
+@page "/login"
+@implements IDisposable
+@inject AdminApiClient ApiClient
+@inject AdminApiState ApiState
+@inject IConfiguration Configuration
+@inject NavigationManager Navigation
+
+<PageTitle>Вход в систему</PageTitle>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-sm mt-5">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h2 class="card-title mb-2">🏨 Admin Console</h2>
+                        <p class="text-muted">Вход в панель администратора</p>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(_message))
+                    {
+                        <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+                            @if (_isError)
+                            {
+                                @((MarkupString)_message)
+                            }
+                            else
+                            {
+                                @_message
+                            }
+                            <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+                        </div>
+                    }
+
+                    @if (ApiState.IsAuthenticated && _showManualNavigation)
+                    {
+                        <div class="alert alert-info mt-3">
+                            <strong>Вход выполнен успешно!</strong><br />
+                            <NavLink href="/dashboard" class="btn btn-primary mt-2">Перейти на Dashboard →</NavLink>
+                        </div>
+                    }
+
+                    <EditForm Model="_form" OnValidSubmit="HandleLogin" FormName="loginForm">
+                        <DataAnnotationsValidator />
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Логин</label>
+                            <InputText class="form-control form-control-lg" @bind-Value="_form.Username" placeholder="Введите логин" />
+                            <ValidationMessage For="@(() => _form.Username)" />
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Пароль</label>
+                            <InputText class="form-control form-control-lg" @bind-Value="_form.Password" type="password" placeholder="Введите пароль" />
+                            <ValidationMessage For="@(() => _form.Password)" />
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-lg" type="submit" disabled="@_isLoading">
+                                @if (_isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                Войти
+                            </button>
+                        </div>
+                    </EditForm>
+
+                    @if (ApiState.IsAuthenticated)
+                    {
+                        <div class="mt-3 text-center">
+                            <button class="btn btn-link text-decoration-none" @onclick="HandleLogout">Выйти из системы</button>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <small class="text-muted">Только для окружения Development</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginForm _form = new();
+    private string? _message;
+    private bool _isError;
+    private bool _isLoading;
+    private bool _showManualNavigation = false;
+
+    protected override void OnInitialized()
+    {
+        var section = Configuration.GetSection("AdminApi");
+        _form.Username = section["DevUsername"] ?? "admin";
+        _form.Password = section["DevPassword"] ?? "change-me";
+        
+        // Подписываемся на изменения состояния авторизации
+        ApiState.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // В Blazor Server Scoped сервисы сохраняются в рамках circuit между навигациями
+            // Если пользователь уже авторизован, перенаправляем на dashboard
+            if (ApiState.IsAuthenticated)
+            {
+                await Task.Delay(100);
+                try
+                {
+                    Navigation.NavigateTo("/dashboard");
+                }
+                catch
+                {
+                    // Игнорируем ошибки навигации при первой загрузке
+                }
+            }
+        }
+    }
+
+    public void Dispose()
+    {
+        ApiState.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+
+    private void OnAuthenticationStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+
+    private async Task HandleLogin()
+    {
+        _message = null;
+        _isError = false;
+        _isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            // Валидация полей
+            if (string.IsNullOrWhiteSpace(_form.Username))
+            {
+                _message = "Логин не может быть пустым.";
+                _isError = true;
+                _isLoading = false;
+                StateHasChanged();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_form.Password))
+            {
+                _message = "Пароль не может быть пустым.";
+                _isError = true;
+                _isLoading = false;
+                StateHasChanged();
+                return;
+            }
+
+            var result = await ApiClient.Login(_form.Username.Trim(), _form.Password, CancellationToken.None);
+            if (!result.Success)
+            {
+                _message = result.Error ?? "Ошибка входа. Проверьте логин и пароль.";
+                _isError = true;
+                _isLoading = false;
+                StateHasChanged();
+                return;
+            }
+
+            // Успешный вход - проверяем, что токен установлен
+            if (!ApiState.IsAuthenticated)
+            {
+                _message = "Ошибка: токен не был установлен.";
+                _isError = true;
+                _isLoading = false;
+                StateHasChanged();
+                return;
+            }
+
+            // Обновляем UI с сообщением об успехе
+            _message = "Успешный вход. Перенаправление...";
+            _isError = false;
+            _isLoading = false;
+            _showManualNavigation = false;
+            StateHasChanged();
+
+            // Небольшая задержка для отображения сообщения
+            await Task.Delay(300);
+            
+            // Навигация через InvokeAsync для правильного контекста выполнения
+            try
+            {
+                await InvokeAsync(() =>
+                {
+                    Navigation.NavigateTo("/dashboard");
+                });
+                
+                // Если навигация не произошла через 1 секунду, показываем кнопку
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(1000);
+                    await InvokeAsync(() =>
+                    {
+                        if (Navigation.Uri.EndsWith("/login") || Navigation.Uri.EndsWith("/login/"))
+                        {
+                            _showManualNavigation = true;
+                            StateHasChanged();
+                        }
+                    });
+                });
+            }
+            catch (Exception)
+            {
+                // Если навигация не удалась, показываем кнопку для ручного перехода
+                _message = "Навигация не удалась автоматически. Используйте кнопку ниже.";
+                _isError = false;
+                _showManualNavigation = true;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            _message = $"Ошибка: {ex.Message}";
+            _isError = true;
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void HandleLogout()
+    {
+        ApiClient.Logout();
+        _message = "Сессия завершена.";
+        _isError = false;
+    }
+
+    private sealed class LoginForm
+    {
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+    }
+}
+
