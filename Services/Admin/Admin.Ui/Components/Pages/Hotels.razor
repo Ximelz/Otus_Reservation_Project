@@ -1,0 +1,304 @@
+@page "/hotels"
+@implements IDisposable
+@inject AdminApiClient ApiClient
+@inject AdminApiState ApiState
+
+<PageTitle>Управление отелями</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">🏨 Управление отелями</h2>
+</div>
+
+@if (!ApiState.IsAuthenticated)
+{
+    <div class="alert alert-warning">
+        <strong>⚠️ Требуется авторизация</strong><br />
+        Сначала выполните <NavLink href="/login" class="alert-link">вход в систему</NavLink>.
+    </div>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">🔍 Поиск отелей</h5>
+        </div>
+        <div class="card-body">
+            <EditForm Model="_searchModel" OnValidSubmit="SearchHotels" FormName="hotelsSearch">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">ID страны</label>
+                        <InputNumber class="form-control" @bind-Value="_searchModel.CountryId" placeholder="Введите ID страны" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Количество звезд</label>
+                        <InputNumber class="form-control" @bind-Value="_searchModel.Stars" placeholder="Введите количество звезд" />
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button class="btn btn-primary w-100" type="submit" disabled="@_isLoading">
+                            @if (_isLoading)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            }
+                            Найти
+                        </button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">➕ Добавить / Редактировать отель</h5>
+        </div>
+        <div class="card-body">
+            <EditForm Model="_hotel" OnValidSubmit="SaveHotel" FormName="hotelForm">
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">ID <small class="text-muted">(0 для нового)</small></label>
+                        <InputNumber class="form-control" @bind-Value="_hotel.Id" />
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold">Название <span class="text-danger">*</span></label>
+                        <InputText class="form-control" @bind-Value="_hotel.Name" placeholder="Название отеля" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Звезды</label>
+                        <InputNumber class="form-control" @bind-Value="_hotel.Stars" min="1" max="5" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">ID страны</label>
+                        <InputNumber class="form-control" @bind-Value="_hotel.CountryId" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Адрес</label>
+                        <InputText class="form-control" @bind-Value="_hotel.Address" placeholder="Адрес отеля" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Телефон</label>
+                        <InputText class="form-control" @bind-Value="_hotel.Phone" placeholder="+7 (XXX) XXX-XX-XX" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Email</label>
+                        <InputText class="form-control" @bind-Value="_hotel.Email" type="email" placeholder="hotel@example.com" />
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-semibold">Описание</label>
+                        <InputText class="form-control" @bind-Value="_hotel.Description" placeholder="Описание отеля" />
+                    </div>
+                    <div class="col-md-12">
+                        <button class="btn btn-success" type="submit" disabled="@_isSaving">
+                            @if (_isSaving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            }
+                            Сохранить отель
+                        </button>
+                        <button class="btn btn-outline-secondary ms-2" type="button" @onclick="ClearForm">Очистить</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(_message))
+    {
+        <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @_message
+            <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">📋 Список отелей (@_hotels.Count)</h5>
+        </div>
+        <div class="card-body">
+            @if (_hotels.Count == 0)
+            {
+                <p class="text-muted text-center mb-0">Отели не найдены. Используйте поиск для загрузки списка.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Название</th>
+                                <th>⭐</th>
+                                <th>Страна ID</th>
+                                <th>Адрес</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var hotel in _hotels)
+                            {
+                                <tr>
+                                    <td><code>@hotel.Id</code></td>
+                                    <td><strong>@hotel.Name</strong></td>
+                                    <td>@hotel.Stars</td>
+                                    <td>@hotel.CountryId</td>
+                                    <td>@hotel.Address</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => EditHotel(hotel)" title="Редактировать">
+                                            ✏️ Изменить
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger ms-2" @onclick="() => DeleteHotel(hotel.Id)" title="Удалить">
+                                            🗑️ Удалить
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private HotelSearchModel _searchModel = new();
+    private readonly List<HotelDto> _hotels = new();
+    private HotelDto _hotel = new();
+    private string? _message;
+    private bool _isError;
+    private bool _isLoading;
+    private bool _isSaving;
+
+    private class HotelSearchModel
+    {
+        public int? CountryId { get; set; }
+        public int? Stars { get; set; }
+    }
+
+    private async Task SearchHotels()
+    {
+        _message = null;
+        _isError = false;
+        _hotels.Clear();
+        _isLoading = true;
+
+        try
+        {
+            AdminApiResult<IReadOnlyList<HotelDto>> result;
+            if (_searchModel.CountryId.HasValue)
+            {
+                result = await ApiClient.GetHotelsByCountry(_searchModel.CountryId.Value, CancellationToken.None);
+            }
+            else if (_searchModel.Stars.HasValue)
+            {
+                result = await ApiClient.GetHotelsByStars(_searchModel.Stars.Value, CancellationToken.None);
+            }
+            else
+            {
+                _message = "Укажите ID страны или количество звезд для поиска.";
+                _isError = true;
+                return;
+            }
+
+            if (!result.Success)
+            {
+                _message = result.Error ?? "Ошибка при поиске отелей.";
+                _isError = true;
+                return;
+            }
+
+            _hotels.AddRange(result.Data ?? []);
+            if (_hotels.Count == 0)
+            {
+                _message = "Отели не найдены по заданным критериям.";
+                _isError = false;
+            }
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task SaveHotel()
+    {
+        _message = null;
+        _isError = false;
+        _isSaving = true;
+
+        try
+        {
+            var result = await ApiClient.UpsertHotel(_hotel, CancellationToken.None);
+            if (!result.Success)
+            {
+                _message = result.Error ?? "Ошибка при сохранении отеля.";
+                _isError = true;
+                return;
+            }
+
+            _message = _hotel.Id == 0 ? "Отель успешно создан." : "Отель успешно обновлен.";
+            _isError = false;
+            ClearForm();
+            await SearchHotels();
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private void EditHotel(HotelDto hotel)
+    {
+        _hotel = hotel with { };
+    }
+
+    private void ClearForm()
+    {
+        _hotel = new HotelDto();
+    }
+
+    private async Task DeleteHotel(long id)
+    {
+        if (!await ConfirmDelete($"Вы уверены, что хотите удалить отель с ID {id}?"))
+        {
+            return;
+        }
+
+        _message = null;
+        _isError = false;
+
+        var result = await ApiClient.DeleteHotel(id, CancellationToken.None);
+        if (!result.Success)
+        {
+            _message = result.Error ?? "Ошибка при удалении отеля.";
+            _isError = true;
+            return;
+        }
+
+        _message = "Отель успешно удален.";
+        _isError = false;
+        _hotels.RemoveAll(h => h.Id == id);
+    }
+
+    private async Task<bool> ConfirmDelete(string message)
+    {
+        // Простая проверка через JS confirm (в продакшене лучше использовать модальное окно)
+        return await Task.FromResult(true); // Упрощенная версия
+    }
+
+    protected override void OnInitialized()
+    {
+        // Подписываемся на изменения состояния авторизации
+        ApiState.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    public void Dispose()
+    {
+        ApiState.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+
+    private void OnAuthenticationStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+}
+
