@@ -1,0 +1,265 @@
+@page "/dashboard"
+@implements IDisposable
+@inject AdminApiClient ApiClient
+@inject AdminApiState ApiState
+@inject NavigationManager Navigation
+
+<PageTitle>Сводка</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">📊 Сводка</h2>
+    <button class="btn btn-outline-primary" @onclick="LoadDashboard" disabled="@_isLoading">
+        @if (_isLoading)
+        {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        }
+        Обновить
+    </button>
+</div>
+
+@if (!ApiState.IsAuthenticated)
+{
+    <div class="alert alert-warning">
+        <strong>⚠️ Требуется авторизация</strong><br />
+        Сначала выполните <NavLink href="/login" class="alert-link">вход в систему</NavLink>.
+    </div>
+}
+else
+{
+    @if (_isLoading && _dashboard is null)
+    {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-3 text-muted">Загрузка данных...</p>
+        </div>
+    }
+    else
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">🔍 Фильтры</h5>
+            </div>
+            <div class="card-body">
+                <EditForm Model="_filterModel" OnValidSubmit="LoadDashboard" FormName="dashboardFilters">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">ID страны</label>
+                            <InputNumber class="form-control" @bind-Value="_filterModel.CountryId" placeholder="Необязательно" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Количество звезд</label>
+                            <InputNumber class="form-control" @bind-Value="_filterModel.Stars" placeholder="Необязательно" />
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button class="btn btn-primary w-100" type="submit" disabled="@_isLoading">
+                                @if (_isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                }
+                                Применить фильтры
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(_error))
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Ошибка:</strong> @_error
+                <button type="button" class="btn-close" @onclick="() => { _error = null; StateHasChanged(); }"></button>
+            </div>
+        }
+
+        @if (_dashboard is not null)
+        {
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card border-primary">
+                        <div class="card-body text-center">
+                            <h3 class="text-primary mb-2">🏨</h3>
+                            <h2 class="mb-0">@(_dashboard.HotelsCount?.ToString() ?? "—")</h2>
+                            <p class="text-muted mb-0">Отелей</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-info">
+                        <div class="card-body text-center">
+                            <h3 class="text-info mb-2">⚙️</h3>
+                            <h2 class="mb-0">@_dashboard.Settings.Count</h2>
+                            <p class="text-muted mb-0">Настроек</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-success">
+                        <div class="card-body text-center">
+                            <h3 class="text-success mb-2">🕐</h3>
+                            <h6 class="mb-0">@_dashboard.GeneratedAt.ToLocalTime().ToString("HH:mm:ss")</h6>
+                            <p class="text-muted mb-0">Обновлено</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(_dashboard.HotelsFilter))
+            {
+                <div class="alert alert-info">
+                    <strong>Активный фильтр:</strong> @_dashboard.HotelsFilter
+                </div>
+            }
+
+            @if (_dashboard.Warnings.Count > 0)
+            {
+                <div class="alert alert-warning">
+                    <strong>⚠️ Предупреждения:</strong>
+                    <ul class="mb-0 mt-2">
+                        @foreach (var warning in _dashboard.Warnings)
+                        {
+                            <li>@warning</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">⚙️ Системные настройки</h5>
+                </div>
+                <div class="card-body">
+                    @if (_dashboard.Settings.Count == 0)
+                    {
+                        <p class="text-muted text-center mb-0">Настроек пока нет</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Ключ</th>
+                                        <th>Значение</th>
+                                        <th>Обновлено</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var setting in _dashboard.Settings)
+                                    {
+                                        <tr>
+                                            <td><code>@setting.Key</code></td>
+                                            <td>@setting.Value</td>
+                                            <td><small class="text-muted">@setting.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</small></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else if (!_isLoading && _dashboard is null && string.IsNullOrWhiteSpace(_error))
+        {
+            <div class="alert alert-info">
+                <strong>Информация:</strong> Данные еще не загружены. Нажмите "Обновить" или примените фильтры.
+            </div>
+        }
+    }
+}
+
+@code {
+    private DashboardFilterModel _filterModel = new();
+    private AdminDashboardResponse? _dashboard;
+    private string? _error;
+    private bool _isLoading;
+
+    private class DashboardFilterModel
+    {
+        public int? CountryId { get; set; }
+        public int? Stars { get; set; }
+    }
+
+    protected override void OnInitialized()
+    {
+        // Подписываемся на изменения состояния авторизации
+        ApiState.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // В Blazor Server Scoped сервисы сохраняются в рамках circuit между навигациями
+        // Проверяем авторизацию и загружаем данные
+        if (ApiState.IsAuthenticated)
+        {
+            await LoadDashboard();
+        }
+    }
+
+    public void Dispose()
+    {
+        ApiState.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+
+    private async void OnAuthenticationStateChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            // Если авторизовались, загружаем данные
+            if (ApiState.IsAuthenticated && _dashboard is null && !_isLoading)
+            {
+                await LoadDashboard();
+            }
+            // Если разлогинились, очищаем данные
+            else if (!ApiState.IsAuthenticated)
+            {
+                _dashboard = null;
+                _error = null;
+            }
+            StateHasChanged();
+        });
+    }
+
+    private async Task LoadDashboard()
+    {
+        _error = null;
+        _dashboard = null;
+        _isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var result = await ApiClient.GetDashboard(_filterModel.CountryId, _filterModel.Stars, CancellationToken.None);
+            if (!result.Success)
+            {
+                _error = result.Error ?? "Не удалось загрузить данные";
+                // Если ошибка авторизации, перенаправляем на login
+                if (result.Error?.Contains("401") == true || 
+                    result.Error?.Contains("Unauthorized") == true ||
+                    result.Error?.Contains("авторизации") == true)
+                {
+                    await Task.Delay(500);
+                    Navigation.NavigateTo("/login");
+                    return;
+                }
+            }
+            else
+            {
+                _dashboard = result.Data;
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = $"Ошибка при загрузке данных: {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+}
+
