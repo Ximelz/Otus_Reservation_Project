@@ -2,10 +2,10 @@
 
 namespace xUnitReservServiceTests
 {
-    public class xUnitReserveService
+    public class ReservexUnitTests
     {
         private readonly IReserveService _service;
-        public xUnitReserveService()
+        public ReservexUnitTests()
         {
             string dbConn = "Host=localhost;Database=ReserveServiceTest;Username=postgres;Password=12345;Port=5432";
             IDbContextFactory<ReservDbContext> dbContext = new DbContextFactory(dbConn);

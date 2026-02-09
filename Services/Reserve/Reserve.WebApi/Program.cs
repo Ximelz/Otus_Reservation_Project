@@ -4,7 +4,7 @@
     {
         public static void Main(string[] args)
         {
-            string dbConn = "Host=postgres;Database=ReserveService;Username=postgres;Password=12345;Port=5432";
+            string dbConn = "Host=localhost;Database=ReserveService;Username=postgres;Password=12345;Port=5432";
 
             var builder = WebApplication.CreateBuilder();
 

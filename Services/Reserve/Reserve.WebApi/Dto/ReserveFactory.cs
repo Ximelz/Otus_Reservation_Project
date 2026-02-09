@@ -1,4 +1,8 @@
-﻿namespace ReservService
+﻿using System.Net.Http;
+using Hotels.Domain;
+using Hotels.Domain.Entities;
+
+namespace ReservService
 {
     public class ReserveFactory
     {
