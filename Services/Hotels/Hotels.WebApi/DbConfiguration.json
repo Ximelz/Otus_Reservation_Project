@@ -1,9 +1,9 @@
 {
-    "ConnectionData": {
-        "UserId": "postgres",
-        "Password": "AdeptUP",
-        "Host": "localhost",
-        "Port": "5432",
-        "Database": "Reservation"
-    }
+  "ConnectionData": {
+    "UserId": "postgres",
+    "Password": "12345",
+    "Host": "localhost",
+    "Port": "5432",
+    "Database": "Reservation"
+  }
 }

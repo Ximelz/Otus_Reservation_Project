@@ -1,0 +1,47 @@
+[
+  {
+    "Name": "Запуск Admin",
+    "Projects": [
+      {
+        "Path": "Services\\Admin\\Admin.WebApi\\Admin.WebApi.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Services\\Admin\\Admin.Ui\\Admin.Ui.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      }
+    ]
+  },
+  {
+    "Name": "API Gateway",
+    "Projects": [
+      {
+        "Path": "Services\\GatewayAPI\\GatewayAPI.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Services\\Reserve\\Reserve.WebApi\\Reserve.WebApi.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Services\\Hotels\\Hotels.WebApi\\Hotels.WebApi.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Services\\Hotels\\Hotels.Infrastructure\\Hotels.Infrastructure.csproj",
+        "Action": "Start",
+        "DebugTarget": "Hotels.Infrastructure"
+      },
+      {
+        "Path": "Services\\Hotels\\Hotels.Domain\\Hotels.Domain.csproj",
+        "Action": "Start",
+        "DebugTarget": "Hotels.Domain"
+      }
+    ]
+  }
+]
