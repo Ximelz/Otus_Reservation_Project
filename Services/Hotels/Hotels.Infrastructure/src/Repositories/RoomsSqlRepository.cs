@@ -75,8 +75,8 @@ namespace Hotels.Infrastructure.Repositories
         {
             using (PgDbContext dbContext = new(_pgContextOptions))
             {
-                var query = from room in dbContext.Set<Room>()
-                            join roomType in dbContext.Set<RoomType>()
+                var query = from room in dbContext.Rooms
+                            join roomType in dbContext.RoomTypes
                             on room.TypeId equals roomType.Id
                             where (room.HotelId == hotelId)
                                     && (string.IsNullOrEmpty(typeName) || roomType.Name.Contains(typeName))

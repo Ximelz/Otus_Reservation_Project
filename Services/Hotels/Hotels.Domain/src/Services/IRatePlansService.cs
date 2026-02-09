@@ -5,8 +5,8 @@ namespace Hotels.Domain.Services
 {
     public interface IRatePlansService
     {
-        Task<IReadOnlyList<RatePlan>> Get(Guid id = default, Guid hotelId = default, Guid roomTypeId = default, 
-                                          string name = "", double minPrice = 0.0, double maxPrice = 0.0);
+        Task<RatePlan?> Get(Guid id);
+        Task<IReadOnlyList<RatePlan>> Get(Func<RatePlan, bool> predicate);
         Task Add(RatePlan ratePlan);
         Task Update(RatePlan ratePlan);
         Task Remove(Guid id);

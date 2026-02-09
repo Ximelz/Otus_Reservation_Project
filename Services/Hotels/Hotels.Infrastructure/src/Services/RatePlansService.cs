@@ -18,10 +18,14 @@ namespace Hotels.Infrastructure.Services
             await _ratesRepository.Add(ratePlan);
         }
 
-        public async Task<IReadOnlyList<RatePlan>> Get(Guid id = default, Guid hotelId = default, Guid roomTypeId = default, 
-                                                       string name = "", double minPrice = 0, double maxPrice = 0)
+        public async Task<RatePlan?> Get(Guid id)
         {
-            return await _ratesRepository.Get(id, hotelId, roomTypeId, name, minPrice, maxPrice);
+            return await _ratesRepository.Get(id);
+        }
+
+        public async Task<IReadOnlyList<RatePlan>> Get(Func<RatePlan, bool> predicate)
+        {
+            return await _ratesRepository.Get(predicate);
         }
 
         public async Task Remove(Guid id)

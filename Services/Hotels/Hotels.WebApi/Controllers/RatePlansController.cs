@@ -1,7 +1,5 @@
 ﻿using Hotels.Domain.Entities;
 using Hotels.Domain.Services;
-using Hotels.Infrastructure.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hotels.WebApi.Controllers
@@ -21,14 +19,14 @@ namespace Hotels.WebApi.Controllers
         [HttpGet("{id}")]
         public async Task<IReadOnlyList<RatePlan>> Get(Guid id)
         {
-            return await _ratesService.Get(id: id);
+            return await _ratesService.Get(rp => rp.Id == id);
         }
 
         // POST api/rates
         [HttpPost]
         public async Task Post(RatePlan rate)
         {
-            if (await _ratesService.Get(id: rate.Id) == null)
+            if (await _ratesService.Get(rp => rp.Id == rate.Id) == null)
             {
                 await _ratesService.Add(rate);
             }
@@ -49,7 +47,14 @@ namespace Hotels.WebApi.Controllers
         [HttpGet("hotel/{id}")]
         public async Task<IReadOnlyList<RatePlan>> GetAllByHotel(Guid id)
         {
-            return await _ratesService.Get(hotelId: id);
+            return await _ratesService.Get(rp => rp.HotelId == id);
+        }
+
+        // GET api/rates/hotel/5/roomType/1
+        [HttpGet("hotel/{hotelId}/roomType/{roomTypeId}")]
+        public async Task<IReadOnlyList<RatePlan>> GetAllByHotel(Guid hotelId, Guid roomTypeId)
+        {
+            return await _ratesService.Get(rp => rp.HotelId == hotelId && rp.RoomTypeId == roomTypeId);
         }
     }
 }
