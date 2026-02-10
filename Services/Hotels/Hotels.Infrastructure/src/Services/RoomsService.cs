@@ -23,24 +23,13 @@ namespace Hotels.Infrastructure.Services
             return await _roomsRepository.Get(roomId);
         }
 
-        public async Task<IReadOnlyList<Room>> GetAllByHotel(Guid hotelId)
+        public async Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
+                                                                  string typeName = "",
+                                                                  int capacity = 1,
+                                                                  double minPrice = 0,
+                                                                  double maxPrice = double.MaxValue)
         {
-            return await _roomsRepository.GetAllByHotel(hotelId);
-        }
-
-        public Task<IReadOnlyList<Room>> GetAllByCapacity(Guid hotelId, int minCapacity, int maxCapacity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IReadOnlyList<Room>> GetAllByComfortLevel(Guid hotelId, int minComfortLevel, int maxComfortLevel)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IReadOnlyList<Room>> GetAllByPrice(Guid hotelId, decimal minPrice, decimal maxPrice)
-        {
-            throw new NotImplementedException();
+            return await _roomsRepository.GetAllByParameters(hotelId, typeName, capacity, minPrice, maxPrice);
         }
 
         public async Task Remove(Guid roomId)

@@ -9,6 +9,7 @@ namespace Hotels.Infrastructure
         public DbSet<Hotel> Hotels => Set<Hotel>();
         public DbSet<Room> Rooms => Set<Room>();
         public DbSet<Country> Countries => Set<Country>();
+        public DbSet<RoomType> RoomTypes => Set<RoomType>();
 
         private PgDbContextOptions _pgOptions;
 
@@ -90,11 +91,6 @@ namespace Hotels.Infrastructure
                       .HasColumnType("text")
                       .IsRequired();
 
-                entity.Property(p => p.Capacity)
-                      .HasColumnName("capacity")
-                      .HasColumnType("integer")
-                      .HasDefaultValue(1);
-
                 entity.Property(p => p.IsEnabled)
                       .HasColumnName("is_enabled")
                       .HasColumnType("boolean")
@@ -102,8 +98,41 @@ namespace Hotels.Infrastructure
 
                 entity.Property(p => p.TypeId)
                       .HasColumnName("type_id")
-                      .HasColumnType("bigint")
-                      .HasDefaultValue(0);
+                      .HasColumnType("uuid");
+
+                entity.HasIndex(r => r.HotelId);
+            });
+
+            modelBuilder.Entity<RoomType>(entity =>
+            {
+                entity.ToTable("room_types");
+
+                entity.HasKey(h => h.Id)
+                      .HasName("pk_room_types");
+
+                entity.Property(p => p.Id)
+                      .IsRequired()
+                      .HasColumnName("id")
+                      .HasColumnType("uuid");
+
+                entity.Property(p => p.HotelId)
+                      .HasColumnName("hotel_id")
+                      .HasColumnType("uuid")
+                      .IsRequired();
+
+                entity.Property(p => p.Name)
+                      .HasColumnName("name")
+                      .HasColumnType("text")
+                      .IsRequired();
+
+                entity.Property(p => p.Description)
+                      .HasColumnName("description")
+                      .HasColumnType("text");
+
+                entity.Property(p => p.Capacity)
+                      .HasColumnName("capacity")
+                      .HasColumnType("integer")
+                      .HasDefaultValue(1);
 
                 entity.HasIndex(r => r.HotelId);
             });

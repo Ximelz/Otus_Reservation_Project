@@ -14,10 +14,6 @@ namespace Hotels.Domain.Entities
 		/// </summary>
 		public string Number { get; set; } = string.Empty;
 		/// <summary>
-		/// Вместимость - количество людей, которые могут свободно проживать в номере
-		/// </summary>
-		public int Capacity { get; set; } = 1;
-		/// <summary>
 		/// Доступен ли номер для бронирования на стороне отеля.
 		/// Например, если в номере планируется сделать ремонт, то заблокировать его для дальнейших броней.
 		/// </summary>
@@ -25,6 +21,6 @@ namespace Hotels.Domain.Entities
 		/// <summary>
 		/// Уровень комфорта
 		/// </summary>
-		public int TypeId { get; set; } = 0;
+		public Guid TypeId { get; set; } = Guid.Empty;
 	}
 }
