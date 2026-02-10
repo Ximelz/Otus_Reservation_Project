@@ -61,7 +61,6 @@ namespace Hotels.WebApi.Controllers
         [HttpGet("seasonPrice/month/{month}/day/{day}/roomType/{roomTypeId}")]
         public async Task<IReadOnlyList<SeasonPrice>> GetByDate(int month, int day, Guid roomTypeId)
         {
-            
             return await _seasonPriceService.GetByDate(roomTypeId, new DateOnly(9999, month, day));
         }
     }
