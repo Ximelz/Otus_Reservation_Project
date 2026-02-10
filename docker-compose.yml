@@ -1,0 +1,49 @@
+﻿services:
+  postgres:
+    image: postgres
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: ReserveDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  reservservice:
+    image: ${DOCKER_REGISTRY-}reservservice
+    build:
+      context: .
+      dockerfile: Services/ReservService/Dockerfile
+    environment:
+        ASPNETCORE_ENVIRONMENT : Development
+        ASPNETCORE_HTTP_PORTS : 8080
+        DATABASE_URL: postgresql://postgres:12345@postges:5432/ReserveDB
+        DB_HOST: postgres
+        DB_PORT: 5432
+        DB_NAME: ReserveDB
+        DB_USER: postgres
+        DB_PASSWORD: 12345
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+    restart: unless-stopped
+        
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge

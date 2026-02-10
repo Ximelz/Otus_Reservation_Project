@@ -1,4 +1,4 @@
-﻿
+
 namespace Hotels.Domain.Entities
 {
 	/// <summary>
