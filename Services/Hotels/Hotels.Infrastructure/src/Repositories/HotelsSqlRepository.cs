@@ -29,7 +29,7 @@ namespace Hotels.Infrastructure.Repositories
         {
             using (PgDbContext dbContext = new(_pgContextOptions))
             {
-                return await dbContext.Set<Hotel>().SingleOrDefaultAsync(h => h.Id == hotelId);
+                return await dbContext.Hotels.SingleOrDefaultAsync(h => h.Id == hotelId);
             }
         }
         
@@ -38,7 +38,7 @@ namespace Hotels.Infrastructure.Repositories
             using (PgDbContext dbContext = new(_pgContextOptions))
             {
                 var query = dbContext
-                                .Set<Hotel>().AsQueryable()
+                                .Hotels.AsQueryable()
                                 .Where(h => h.Id == hotelId);
                 await query.ExecuteDeleteAsync();
                 await dbContext.SaveChangesAsync();
@@ -72,7 +72,7 @@ namespace Hotels.Infrastructure.Repositories
         {
             using (PgDbContext dbContext = new(_pgContextOptions))
             {
-                var query = dbContext.Set<Hotel>().AsQueryable();
+                var query = dbContext.Hotels.AsQueryable();
                 return await query
                             .Where(h => h.CountryId == countryId)
                             .ToListAsync();
@@ -83,7 +83,7 @@ namespace Hotels.Infrastructure.Repositories
         {
             using (PgDbContext dbContext = new(_pgContextOptions))
             {
-                var query = dbContext.Set<Hotel>().AsQueryable();
+                var query = dbContext.Hotels.AsQueryable();
                 return await query
                             .Where(h => stars.Contains(h.Stars))
                             .ToListAsync();
