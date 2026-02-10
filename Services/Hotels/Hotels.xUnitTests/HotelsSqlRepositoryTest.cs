@@ -286,8 +286,6 @@ namespace Hotels.xUnitTests
                 Assert.Fail(ex.Message);
             }
 
-            hotels.Where(h => h.Name == newHotel.Name).ToList();
-
             Assert.True(hotels.Count == 1);
 
             var addedHotel = hotels.First();
