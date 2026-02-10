@@ -1,0 +1,251 @@
+@page "/settings"
+@implements IDisposable
+@inject AdminApiClient ApiClient
+@inject AdminApiState ApiState
+
+<PageTitle>Системные настройки</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">⚙️ Системные настройки</h2>
+    <button class="btn btn-outline-primary" @onclick="LoadSettings" disabled="@_isLoading">
+        @if (_isLoading)
+        {
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+        }
+        Обновить
+    </button>
+</div>
+
+@if (!ApiState.IsAuthenticated)
+{
+    <div class="alert alert-warning">
+        <strong>⚠️ Требуется авторизация</strong><br />
+        Сначала выполните <NavLink href="/login" class="alert-link">вход в систему</NavLink>.
+    </div>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">➕ Добавить / Обновить настройку</h5>
+        </div>
+        <div class="card-body">
+            <EditForm Model="_settingModel" OnValidSubmit="SaveSetting" FormName="settingForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Ключ <span class="text-danger">*</span></label>
+                        <InputText class="form-control" @bind-Value="_settingModel.Key" placeholder="Например: Reservation.HoldHours" />
+                        <small class="text-muted">Используйте формат: Section.Key (A-Za-z0-9.-_)</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Значение</label>
+                        <InputText class="form-control" @bind-Value="_settingModel.Value" placeholder="Значение настройки" />
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-success w-100" type="submit" disabled="@_isSaving">
+                            @if (_isSaving)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            }
+                            Сохранить
+                        </button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(_message))
+    {
+        <div class="alert @(_isError ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @_message
+            <button type="button" class="btn-close" @onclick="() => _message = null"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">📋 Список настроек (@_settings.Count)</h5>
+        </div>
+        <div class="card-body">
+            @if (_settings.Count == 0)
+            {
+                <p class="text-muted text-center mb-0">Настроек пока нет. Добавьте первую настройку выше.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Ключ</th>
+                                <th>Значение</th>
+                                <th>Обновлено</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var setting in _settings)
+                            {
+                                <tr>
+                                    <td><code>@setting.Key</code></td>
+                                    <td>@setting.Value</td>
+                                    <td><small class="text-muted">@setting.UpdatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</small></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => EditSetting(setting)" title="Редактировать">
+                                            ✏️ Изменить
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger ms-2" @onclick="() => DeleteSetting(setting.Key)" title="Удалить">
+                                            🗑️ Удалить
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private readonly List<SystemSetting> _settings = new();
+    private SettingFormModel _settingModel = new();
+    private string? _message;
+    private bool _isError;
+    private bool _isLoading;
+    private bool _isSaving;
+
+    private class SettingFormModel
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+    }
+
+    protected override void OnInitialized()
+    {
+        // Подписываемся на изменения состояния авторизации
+        ApiState.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // В Blazor Server Scoped сервисы сохраняются в рамках circuit между навигациями
+        if (ApiState.IsAuthenticated)
+        {
+            await LoadSettings();
+        }
+    }
+
+    public void Dispose()
+    {
+        ApiState.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+
+    private async void OnAuthenticationStateChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            // Если авторизовались, загружаем настройки
+            if (ApiState.IsAuthenticated && _settings.Count == 0 && !_isLoading)
+            {
+                await LoadSettings();
+            }
+            // Если разлогинились, очищаем данные
+            else if (!ApiState.IsAuthenticated)
+            {
+                _settings.Clear();
+                _message = null;
+            }
+            StateHasChanged();
+        });
+    }
+
+    private async Task LoadSettings()
+    {
+        _message = null;
+        _isError = false;
+        _isLoading = true;
+
+        try
+        {
+            var result = await ApiClient.GetSettings(CancellationToken.None);
+            if (!result.Success)
+            {
+                _message = result.Error ?? "Ошибка при загрузке настроек.";
+                _isError = true;
+                return;
+            }
+
+            _settings.Clear();
+            _settings.AddRange(result.Data ?? []);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task SaveSetting()
+    {
+        _message = null;
+        _isError = false;
+        _isSaving = true;
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_settingModel.Key))
+            {
+                _message = "Ключ обязателен для заполнения.";
+                _isError = true;
+                return;
+            }
+
+            var result = await ApiClient.UpsertSetting(_settingModel.Key.Trim(), _settingModel.Value ?? string.Empty, CancellationToken.None);
+            if (!result.Success)
+            {
+                _message = result.Error ?? "Ошибка при сохранении настройки.";
+                _isError = true;
+                return;
+            }
+
+            _message = "Настройка успешно сохранена.";
+            _isError = false;
+            _settingModel = new SettingFormModel();
+            await LoadSettings();
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private void EditSetting(SystemSetting setting)
+    {
+        _settingModel = new SettingFormModel
+        {
+            Key = setting.Key,
+            Value = setting.Value
+        };
+    }
+
+    private async Task DeleteSetting(string key)
+    {
+        _message = null;
+        _isError = false;
+
+        var result = await ApiClient.DeleteSetting(key, CancellationToken.None);
+        if (!result.Success)
+        {
+            _message = result.Error ?? "Ошибка при удалении настройки.";
+            _isError = true;
+            return;
+        }
+
+        _message = "Настройка успешно удалена.";
+        _isError = false;
+        await LoadSettings();
+    }
+}
+
