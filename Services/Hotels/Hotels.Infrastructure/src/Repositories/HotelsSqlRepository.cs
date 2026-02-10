@@ -6,17 +6,18 @@ namespace Hotels.Infrastructure.Repositories
 {
     public class HotelsSqlRepository : IHotelsRepository
     {
-        private readonly DbContextOptions<SqlDatabaseContext> _dbContextOptions;
+        private readonly PgDbContextOptions _pgContextOptions;
 
-        public HotelsSqlRepository(DbContextOptions<SqlDatabaseContext> dbContextOptions)
+        public HotelsSqlRepository(PgDbContextOptions dbContextOptions)
         {
-            _dbContextOptions = dbContextOptions;
+            _pgContextOptions = dbContextOptions;
         }
 
-        public async Task<long> Add(Hotel hotel)
+        public async Task<Guid> Add(Hotel hotel)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_pgContextOptions))
             {
+                hotel.Id = Guid.NewGuid();
                 await dbContext.AddAsync(hotel);
                 await dbContext.SaveChangesAsync();
 
@@ -24,41 +25,23 @@ namespace Hotels.Infrastructure.Repositories
             }
         }
 
-        public async Task<Hotel?> Get(long hotelId)
+        public async Task<Hotel?> Get(Guid hotelId)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_pgContextOptions))
             {
-                var query = dbContext.Set<Hotel>().Include(h => h.Rooms).AsQueryable();
-                return await query.SingleOrDefaultAsync(h => h.Id == hotelId);
+                return await dbContext.Hotels.SingleOrDefaultAsync(h => h.Id == hotelId);
             }
         }
-
-        public async Task<IReadOnlyList<Hotel>> GetAllByCountry(int countryId)
+        
+        public async Task Remove(Guid hotelId)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
-            {
-                var query = dbContext.Set<Hotel>().AsQueryable();
-                return await query.Where(h => h.CountryId == countryId).ToListAsync();
-            }
-        }
-
-        public async Task<IReadOnlyList<Hotel>> GetAllByStars(HashSet<int> stars)
-        {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
-            {
-                var query = dbContext.Set<Hotel>().AsQueryable();
-                return await query.Where(h => stars.Contains(h.Stars)).ToListAsync();
-            }
-        }
-
-        public async Task Remove(long hotelId)
-        {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_pgContextOptions))
             {
                 var query = dbContext
-                                .Set<Hotel>().AsQueryable()
+                                .Hotels.AsQueryable()
                                 .Where(h => h.Id == hotelId);
                 await query.ExecuteDeleteAsync();
+                await dbContext.SaveChangesAsync();
             }
         }
 
@@ -70,7 +53,7 @@ namespace Hotels.Infrastructure.Repositories
                 return;
             }
 
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_pgContextOptions))
             {
                 repHotel.Name = hotel.Name;
                 repHotel.Phone = hotel.Phone;
@@ -84,5 +67,28 @@ namespace Hotels.Infrastructure.Repositories
                 await dbContext.SaveChangesAsync();
             }
         }
+
+        public async Task<IReadOnlyList<Hotel>> GetAllByCountry(int countryId)
+        {
+            using (PgDbContext dbContext = new(_pgContextOptions))
+            {
+                var query = dbContext.Hotels.AsQueryable();
+                return await query
+                            .Where(h => h.CountryId == countryId)
+                            .ToListAsync();
+            }
+        }
+
+        public async Task<IReadOnlyList<Hotel>> GetAllByStars(HashSet<int> stars)
+        {
+            using (PgDbContext dbContext = new(_pgContextOptions))
+            {
+                var query = dbContext.Hotels.AsQueryable();
+                return await query
+                            .Where(h => stars.Contains(h.Stars))
+                            .ToListAsync();
+            }
+        }
+
     }
 }

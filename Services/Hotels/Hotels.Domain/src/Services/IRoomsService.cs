@@ -8,14 +8,13 @@ namespace Hotels.Domain.Services
     public interface IRoomsService
     {
         Task Add(Room room);
-        Task Remove(long roomId);
-        Task RemoveAll(long hotelId);
+        Task Remove(Guid roomId);
         Task Update(Room room);
-        Task<Room?> Get(long roomId);
+        Task<Room?> Get(Guid roomId);
 
-        Task<IReadOnlyList<Room>> GetAllByHotel(long hotelId);
-        Task<IReadOnlyList<Room>> GetAllByComfortLevel(long hotelId, int minComfortLevel, int maxComfortLevel);
-        Task<IReadOnlyList<Room>> GetAllByCapacity(long hotelId, int minCapacity, int maxCapacity);
-        Task<IReadOnlyList<Room>> GetAllByPrice(long hotelId, decimal minPrice, decimal maxPrice);
+        Task<IReadOnlyList<Room>> GetAllByHotel(Guid hotelId);
+        Task<IReadOnlyList<Room>> GetAllByComfortLevel(Guid hotelId, int minComfortLevel, int maxComfortLevel);
+        Task<IReadOnlyList<Room>> GetAllByCapacity(Guid hotelId, int minCapacity, int maxCapacity);
+        Task<IReadOnlyList<Room>> GetAllByPrice(Guid hotelId, decimal minPrice, decimal maxPrice);
     }
 }

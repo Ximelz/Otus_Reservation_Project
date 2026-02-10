@@ -32,28 +32,34 @@ namespace Hotels.Infrastructure
             set => _pgSettings.DatabaseName = value;
         }
 
-        private readonly PgSettingsManager _pgSettings = new();
+        private PgSettingsManager _pgSettings = new();
 
         public PgDbContextOptions()
         {
             _pgSettings.ReadSettings();
         }
 
-        public DbContextOptions<SqlDatabaseContext> GetOptions()
+        public DbContextOptions<PgDbContext> GetOptions()
         {
             return GetOptionsBuilder().Options;
         }
-
-        public DbContextOptionsBuilder<SqlDatabaseContext> GetOptionsBuilder()
+         
+        public DbContextOptionsBuilder<PgDbContext> GetOptionsBuilder()
         {
-            var optionsBuilder = new DbContextOptionsBuilder<SqlDatabaseContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<PgDbContext>();
+            ConfigureOptionsBuilder(optionsBuilder);
 
-            return optionsBuilder.UseNpgsql(GetConnectionString());
+            return optionsBuilder;
         }
 
-        private string GetConnectionString()
+        public string GetConnectionString()
         {
             return $"User ID={UserId};Password={Password};Host={Host};Port={Port};Database={DatabaseName}";
+        }
+
+        public void ConfigureOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseNpgsql(GetConnectionString());
         }
     }
 }

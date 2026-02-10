@@ -16,7 +16,7 @@ namespace Hotels.xUnitTests
             _pgOptionsBuilder = new();
             _pgOptionsBuilder.DatabaseName = "ReservationRoomsTest";
 
-            using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            using (PgDbContext dbContext = new(_pgOptionsBuilder))
             {
                 dbContext.Database.EnsureDeleted();
                 dbContext.Database.EnsureCreated();
@@ -25,8 +25,8 @@ namespace Hotels.xUnitTests
 
             try
             {
-                _roomsRepository = new RoomsSqlRepository(_pgOptionsBuilder.GetOptions());
-                _hotelsRepository = new HotelsSqlRepository(_pgOptionsBuilder.GetOptions());
+                _roomsRepository = new RoomsSqlRepository(_pgOptionsBuilder);
+                _hotelsRepository = new HotelsSqlRepository(_pgOptionsBuilder);
             }
             catch (Exception ex)
             {
@@ -36,7 +36,7 @@ namespace Hotels.xUnitTests
 
         public void Dispose()
         {
-            using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            using (PgDbContext dbContext = new(_pgOptionsBuilder))
             {
                 dbContext.Database.EnsureDeleted();
                 dbContext.SaveChanges();
@@ -46,7 +46,7 @@ namespace Hotels.xUnitTests
         [Fact]
         public async Task TestHotelNotExist()
         {
-            Room? room = await _roomsRepository.Get(-1);
+            Room? room = await _roomsRepository.Get(Guid.Empty);
 
             Assert.True(room == null);
         }
@@ -62,20 +62,12 @@ namespace Hotels.xUnitTests
                 newRoom.HotelId = newHotel.Id;
                 newRoom.Number = (i + 1).ToString();
                 newRoom.Capacity = 2;
-                newRoom.Price = 1;
 
                 await _roomsRepository.Add(newRoom);
             }
 
             var rooms = await _roomsRepository.GetAllByHotel(newHotel.Id);
             Assert.Equal(3, rooms.Count);
-
-            Assert.Empty(newHotel.Rooms);
-
-            newHotel = await _hotelsRepository.Get(newHotel.Id);
-            Assert.NotNull(newHotel);
-
-            Assert.Equal(3, newHotel.Rooms.Count);
         }
 
         [Fact]
@@ -83,14 +75,13 @@ namespace Hotels.xUnitTests
         {
             Hotel newHotel = await CreateHotel();
 
-            long roomId = -1;
+            Guid roomId = Guid.Empty;
             for (int i = 0; i < 3; i++)
             {
                 Room newRoom = new();
                 newRoom.HotelId = newHotel.Id;
                 newRoom.Number = (i+1).ToString();
                 newRoom.Capacity = 2;
-                newRoom.Price = 1;
 
                 await _roomsRepository.Add(newRoom);
 
@@ -127,7 +118,6 @@ namespace Hotels.xUnitTests
                 newRoom.HotelId = newHotel.Id;
                 newRoom.Number = (i + 1).ToString();
                 newRoom.Capacity = 2;
-                newRoom.Price = 1;
 
                 await _roomsRepository.Add(newRoom);
 
