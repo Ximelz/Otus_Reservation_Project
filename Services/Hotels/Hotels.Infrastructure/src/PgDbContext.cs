@@ -10,12 +10,9 @@ namespace Hotels.Infrastructure
         public DbSet<Room> Rooms => Set<Room>();
         public DbSet<Country> Countries => Set<Country>();
         public DbSet<RoomType> RoomTypes => Set<RoomType>();
+        public DbSet<RatePlan> RatePlans => Set<RatePlan>();
 
         private PgDbContextOptions _pgOptions;
-
-        //public SqlDatabaseContext()
-        //{
-        //}
 
         public PgDbContext(PgDbContextOptions options) : base(options.GetOptions())
         {
@@ -153,6 +150,41 @@ namespace Hotels.Infrastructure
                       .HasColumnName("name")
                       .HasColumnType("text")
                       .IsRequired();
+            });
+
+            modelBuilder.Entity<RatePlan>(entity =>
+            {
+                entity.ToTable("rate_plans");
+
+                // p - property
+                entity.HasKey(p => p.Id)
+                      .HasName("pk_rate_plans");
+
+                entity.Property(p => p.Id)
+                      .HasColumnName("id")
+                      .HasColumnType("uuid")
+                      .ValueGeneratedNever();
+
+                entity.Property(p => p.HotelId)
+                      .HasColumnName("hotel_id")
+                      .HasColumnType("uuid")
+                      .IsRequired();
+
+                entity.Property(p => p.RoomTypeId)
+                      .HasColumnName("room_type_id")
+                      .HasColumnType("uuid");
+
+                entity.Property(p => p.Name)
+                      .HasColumnName("name")
+                      .HasColumnType("text")
+                      .IsRequired();
+
+                entity.Property(p => p.Price)
+                      .HasColumnName("price")
+                      .HasColumnType("numeric")
+                      .IsRequired();
+
+                entity.HasIndex(r => r.HotelId);
             });
         }
 

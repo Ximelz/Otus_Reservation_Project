@@ -50,7 +50,7 @@ namespace Hotels.WebApi.Controllers
         [HttpGet("hotel/{id}")]
         public async Task<IReadOnlyList<Room>> GetAllByHotel(Guid id)
         {
-            return await _roomsService.GetAllByHotel(id);
+            return await _roomsService.GetAllByParameters(hotelId: id);
         }
     }
 }
