@@ -1,3 +1,4 @@
+using Core.Data.PostgreSQL;
 using Customers.Core.Data;
 using Customers.Core.DTOs;
 using Customers.Core.Interfaces;
@@ -12,11 +13,11 @@ namespace Customers.API.Controllers
     [Route("/api/[controller]/V1")]
     public class CustomersController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly PostgreAppDbContext _context;
         private readonly ILogger<CustomersController> _logger;
 
         public CustomersController(
-            AppDbContext context,
+            PostgreAppDbContext context,
             ILogger<CustomersController> logger)
         {
             _context = context;

@@ -11,6 +11,6 @@ class Program
 {
     static void Main(string[] args)
     {
-        EfClass.InitDatabase();
+        //EfClass.InitDatabase();
     }
 }

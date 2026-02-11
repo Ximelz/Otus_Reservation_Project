@@ -1,40 +1,30 @@
 
-using Customers.Core;
-using Customers.Core.Data;
+using Core.Data.PostgreSQL;
+using Core.Data;
+using Customers.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace Customers.API
 {
     public class Program
-    {        
+    {
         public static void Main(string[] args)
         {
             //var initializer = new ApplicationInitializer();
             //docker-compose up -d
             //docker-compose down -v
             //initializer.InitializeApplicationAsync();
-            EfClass.InitDatabase();
-
 
             var builder = WebApplication.CreateBuilder(args);
-            // 1. Добавьте эту строку для регистрации DbContext
-            // Регистрация DbContext для PostgreSQL
-            builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(
-                    //builder.Configuration.GetConnectionString("PostgresConnection"),
-                    EfClass.GetConnectionString(),
-                    npgsqlOptions =>
-                    {
-                        // Дополнительные настройки
-                        npgsqlOptions.EnableRetryOnFailure(
-                            maxRetryCount: 3,
-                            maxRetryDelay: TimeSpan.FromSeconds(5),
-                            errorCodesToAdd: null);
+            //builder.Services.AddScoped<IDBEFClass, PostgreEfClass>();
 
-                        // Включение поддержки диапазонов (range) и других типов
-                        //npgsqlOptions.UseNodaTime();
-                    }));
+            IDBEFClass EfClass = new PostgreEfClass();
+            // Создание БД при запуске (опционально)
+            EfClass.EnsureCreatedDatabase();
+            // Регистрация DbContext для PostgreSQL
+            builder.Services.AddDbContext<PostgreAppDbContext>(EfClass.ConfigureDbContextOptions());
+
 
             // Add services to the container.
 
@@ -58,13 +48,6 @@ namespace Customers.API
 
 
             app.MapControllers();
-
-            // 6. Создание БД при запуске (опционально)
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            //    dbContext.Database.EnsureCreated(); // или dbContext.Database.Migrate();
-            //}
 
             app.Run();
         }

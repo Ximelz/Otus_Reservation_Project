@@ -1,15 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Customers.Core.DTOs;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Customers.Core.Data;
 
-namespace Customers.Core.Data;
+namespace Core.Data.PostgreSQL;
 
-public class AppDbContext : DbContext
+
+public class PostgreAppDbContext : DbContext
 {
     // DbSet должен использовать класс Customer, а не CustomerDto
     public DbSet<Customer> Customers { get; set; }
 
-    public AppDbContext(DbContextOptions<AppDbContext> options)
+    public PostgreAppDbContext(DbContextOptions<PostgreAppDbContext> options)
         : base(options)
     {
     }
