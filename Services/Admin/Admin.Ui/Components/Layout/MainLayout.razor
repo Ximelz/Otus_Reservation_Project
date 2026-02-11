@@ -1,0 +1,70 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject AdminApiState ApiState
+@inject AdminApiClient ApiClient
+@inject NavigationManager Navigation
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <div class="d-flex align-items-center justify-content-between w-100">
+                <div class="d-flex align-items-center">
+                    <span class="text-muted me-3">Admin Console</span>
+                    @if (ApiState.IsAuthenticated)
+                    {
+                        <span class="badge bg-success me-2">Авторизован</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Не авторизован</span>
+                    }
+                </div>
+                @if (ApiState.IsAuthenticated)
+                {
+                    <button class="btn btn-sm btn-outline-secondary" @onclick="HandleLogout">
+                        Выйти
+                    </button>
+                }
+            </div>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    Произошла ошибка.
+    <a href="" class="reload">Перезагрузить</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Подписываемся на изменения состояния авторизации
+        // В Blazor Server Scoped сервисы сохраняются в рамках circuit между навигациями
+        ApiState.AuthenticationStateChanged += OnAuthenticationStateChanged;
+    }
+
+    public void Dispose()
+    {
+        ApiState.AuthenticationStateChanged -= OnAuthenticationStateChanged;
+    }
+
+    private void OnAuthenticationStateChanged()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void HandleLogout()
+    {
+        ApiClient.Logout();
+        Navigation.NavigateTo("/login");
+    }
+}

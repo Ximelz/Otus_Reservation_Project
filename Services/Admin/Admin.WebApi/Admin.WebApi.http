@@ -1,0 +1,15 @@
+@Admin.WebApi_HostAddress = http://localhost:5009
+
+### Dev login (only in Development + Admin:DevAuth:Enabled=true)
+POST {{Admin.WebApi_HostAddress}}/api/admin/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "change-me"
+}
+
+###
+GET {{Admin.WebApi_HostAddress}}/api/admin/settings
+Accept: application/json
+Authorization: Bearer {{token}}
