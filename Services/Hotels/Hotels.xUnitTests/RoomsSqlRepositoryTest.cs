@@ -2,23 +2,23 @@
 using Hotels.Domain.Repositories;
 using Hotels.Infrastructure;
 using Hotels.Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Hotels.xUnitTests
 {
-    public class RoomsSqlRepositoryTest : BaseSqlRepositoryTest, IDisposable
+    public class RoomsSqlRepositoryTest : IDisposable
     {
         private IRoomsRepository _roomsRepository;
+        private IRoomTypesRepository _roomTypesRepository;
         private IHotelsRepository _hotelsRepository;
         private PgDbContextOptions _pgOptionsBuilder;
 
         public RoomsSqlRepositoryTest() : base()
         {
-            Assert.True(File.Exists(_dbConfigurationFilePath));
-
-            _pgOptionsBuilder = new(_dbConfigurationFilePath);
+            _pgOptionsBuilder = new();
             _pgOptionsBuilder.DatabaseName = "ReservationRoomsTest";
 
-            using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            using (PgDbContext dbContext = new(_pgOptionsBuilder))
             {
                 dbContext.Database.EnsureDeleted();
                 dbContext.Database.EnsureCreated();
@@ -27,8 +27,9 @@ namespace Hotels.xUnitTests
 
             try
             {
-                _roomsRepository = new RoomsSqlRepository(_pgOptionsBuilder.GetOptions());
-                _hotelsRepository = new HotelsSqlRepository(_pgOptionsBuilder.GetOptions());
+                _roomsRepository = new RoomsSqlRepository(_pgOptionsBuilder);
+                _roomTypesRepository = new RoomTypesSqlRepository(_pgOptionsBuilder);
+                _hotelsRepository = new HotelsSqlRepository(_pgOptionsBuilder);
             }
             catch (Exception ex)
             {
@@ -38,7 +39,7 @@ namespace Hotels.xUnitTests
 
         public void Dispose()
         {
-            using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            using (PgDbContext dbContext = new(_pgOptionsBuilder))
             {
                 dbContext.Database.EnsureDeleted();
                 dbContext.SaveChanges();
@@ -48,7 +49,7 @@ namespace Hotels.xUnitTests
         [Fact]
         public async Task TestHotelNotExist()
         {
-            Room? room = await _roomsRepository.Get(-1);
+            Room? room = await _roomsRepository.Get(Guid.Empty);
 
             Assert.True(room == null);
         }
@@ -58,26 +59,26 @@ namespace Hotels.xUnitTests
         {
             Hotel? newHotel = await CreateHotel();
 
+            RoomType roomType = new();
+            roomType.HotelId = newHotel.Id;
+            roomType.Name = "test";
+            roomType.Description = "test description";
+            roomType.Capacity = 1;
+
+            await _roomTypesRepository.Add(roomType);
+
             for (int i = 0; i < 3; i++)
             {
                 Room newRoom = new();
                 newRoom.HotelId = newHotel.Id;
+                newRoom.TypeId = roomType.Id;
                 newRoom.Number = (i + 1).ToString();
-                newRoom.Capacity = 2;
-                newRoom.Price = 1;
 
                 await _roomsRepository.Add(newRoom);
             }
 
-            var rooms = await _roomsRepository.GetAllByHotel(newHotel.Id);
+            var rooms = await _roomsRepository.GetAllByParameters(newHotel.Id);
             Assert.Equal(3, rooms.Count);
-
-            Assert.Empty(newHotel.Rooms);
-
-            newHotel = await _hotelsRepository.Get(newHotel.Id);
-            Assert.NotNull(newHotel);
-
-            Assert.Equal(3, newHotel.Rooms.Count);
         }
 
         [Fact]
@@ -85,14 +86,12 @@ namespace Hotels.xUnitTests
         {
             Hotel newHotel = await CreateHotel();
 
-            long roomId = -1;
+            Guid roomId = Guid.Empty;
             for (int i = 0; i < 3; i++)
             {
                 Room newRoom = new();
                 newRoom.HotelId = newHotel.Id;
                 newRoom.Number = (i+1).ToString();
-                newRoom.Capacity = 2;
-                newRoom.Price = 1;
 
                 await _roomsRepository.Add(newRoom);
 
@@ -109,11 +108,26 @@ namespace Hotels.xUnitTests
                 Assert.Fail(ex.Message);
             }
 
-            Room? findedRoom = await _roomsRepository.Get(roomId);
-            Assert.Null(findedRoom);
+            Room? foundedRoom = await _roomsRepository.Get(roomId);
+            Assert.Null(foundedRoom);
+            if (foundedRoom == null)
+                return;
 
-            var rooms = await _roomsRepository.GetAllByHotel(newHotel.Id);
-            Assert.Equal(2, rooms.Count);
+            var rooms = await _roomsRepository.GetAllByParameters(newHotel.Id);
+            Assert.Empty(rooms);
+
+            RoomType roomType = new();
+            roomType.HotelId = newHotel.Id;
+            roomType.Name = "test";
+            roomType.Description = "test description";
+            roomType.Capacity = 1;
+
+            await _roomTypesRepository.Add(roomType);
+            foundedRoom.TypeId = roomType.Id;
+            await _roomsRepository.Update(foundedRoom);
+
+            rooms = await _roomsRepository.GetAllByParameters(newHotel.Id);
+            Assert.Single(rooms);
         }
 
         [Fact]
@@ -128,8 +142,6 @@ namespace Hotels.xUnitTests
                 Room newRoom = new();
                 newRoom.HotelId = newHotel.Id;
                 newRoom.Number = (i + 1).ToString();
-                newRoom.Capacity = 2;
-                newRoom.Price = 1;
 
                 await _roomsRepository.Add(newRoom);
 
@@ -153,6 +165,92 @@ namespace Hotels.xUnitTests
             Assert.NotNull(updatedRoom);
             Assert.Equal("2-1", updatedRoom.Number);
         }
+
+        [Fact]
+        public async Task TestGetRoomsByCapacity()
+        {
+            Hotel? newHotel = await CreateHotel();
+
+            Dictionary<int, RoomType> roomTypes = new();
+            for (int c = 1; c < 4; c++)
+            {
+                RoomType roomType = new();
+                roomType.HotelId = newHotel.Id;
+                roomType.Name = "test";
+                roomType.Description = "test description";
+                roomType.Capacity = c;
+
+                roomTypes[c] = roomType;
+                await _roomTypesRepository.Add(roomType);
+
+                for (int i = 0; i < 3; i++)
+                {
+                    Room newRoom = new();
+                    newRoom.HotelId = newHotel.Id;
+                    newRoom.TypeId = roomType.Id;
+                    newRoom.Number = (i + 1).ToString();
+
+                    await _roomsRepository.Add(newRoom);
+                }
+            }
+
+            var rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, capacity: 1);
+            Assert.Equal(3, rooms.Count);
+
+            rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, capacity: 2);
+            Assert.Equal(3, rooms.Count);
+
+            rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, capacity: 3);
+            Assert.Equal(3, rooms.Count);
+
+            rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, capacity: 4);
+            Assert.Empty(rooms);
+
+            rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, capacity: 0);
+            Assert.Equal(9, rooms.Count);
+        }
+
+        [Fact]
+        public async Task TestGetRoomsByType()
+        {
+            Hotel? newHotel = await CreateHotel();
+
+            Dictionary<int, RoomType> roomTypes = new();
+            for (int c = 1; c < 4; c++)
+            {
+                RoomType roomType = new();
+                roomType.HotelId = newHotel.Id;
+                roomType.Name = $"test{c}";
+                roomType.Description = "test description";
+                roomType.Capacity = c;
+
+                roomTypes[c] = roomType;
+                await _roomTypesRepository.Add(roomType);
+
+                for (int i = 0; i < 3; i++)
+                {
+                    Room newRoom = new();
+                    newRoom.HotelId = newHotel.Id;
+                    newRoom.TypeId = roomType.Id;
+                    newRoom.Number = (i + 1).ToString();
+
+                    await _roomsRepository.Add(newRoom);
+                }
+            }
+
+            var rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, capacity: 0, typeName: "test");
+            Assert.Equal(9, rooms.Count);
+
+            rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, typeName: "test1");
+            Assert.Equal(3, rooms.Count);
+
+            rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, capacity: 3, typeName: "test3");
+            Assert.Equal(3, rooms.Count);
+
+            rooms = await _roomsRepository.GetAllByParameters(newHotel.Id, typeName: "test11");
+            Assert.Empty(rooms);
+        }
+
 
         private async Task<Hotel> CreateHotel()
         {

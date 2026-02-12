@@ -1,32 +1,35 @@
 ﻿using Hotels.Domain.Entities;
 using Hotels.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Hotels.Infrastructure.Repositories
 {
     public class RoomsSqlRepository : IRoomsRepository
     {
-        private readonly DbContextOptions<SqlDatabaseContext> _dbContextOptions;
+        private readonly PgDbContextOptions _pgContextOptions;
 
-        public RoomsSqlRepository(DbContextOptions<SqlDatabaseContext> dbContextOptions) 
+        public RoomsSqlRepository(PgDbContextOptions dbContextOptions) 
         {
-            _dbContextOptions = dbContextOptions;
+            _pgContextOptions = dbContextOptions;
         }
 
         public async Task Add(Room room)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_pgContextOptions))
             {
+                room.Id = Guid.NewGuid();
                 await dbContext.AddAsync(room);
                 await dbContext.SaveChangesAsync();
             }
         }
 
-        public async Task Remove(long roomId)
+        public async Task Remove(Guid roomId)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_pgContextOptions))
             {
-                var query = dbContext.Set<Room>().AsQueryable().Where(r => r.Id == roomId);
+                var query = dbContext.Rooms
+                            .Where(r => r.Id == roomId);
                 await query.ExecuteDeleteAsync();
                 await dbContext.SaveChangesAsync();
             }
@@ -34,16 +37,16 @@ namespace Hotels.Infrastructure.Repositories
 
         public async Task Remove(Room room)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_pgContextOptions))
             {
-                var query = dbContext.Set<Room>().Remove(room);
+                var query = dbContext.Rooms.Remove(room);
                 await dbContext.SaveChangesAsync();
             }
         }
 
         public async Task Update(Room room)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_pgContextOptions))
             {
                 Room? existedRoom = await Get(room.Id);
                 if (existedRoom == null)
@@ -56,19 +59,31 @@ namespace Hotels.Infrastructure.Repositories
             }
         }
 
-        public async Task<Room?> Get(long roomId)
+        public async Task<Room?> Get(Guid roomId)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_pgContextOptions))
             {
-                return await dbContext.Set<Room>().SingleOrDefaultAsync(r => r.Id == roomId);
+                return await dbContext.Rooms.SingleOrDefaultAsync(r => r.Id == roomId);
             }
         }
 
-        public async Task<IReadOnlyList<Room>> GetAllByHotel(long hotelId)
+        public async Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
+                                                                  string typeName = "",
+                                                                  int capacity = 1,
+                                                                  double minPrice = 0,
+                                                                  double maxPrice = double.MaxValue)
         {
-            using (SqlDatabaseContext dbContext = new(_dbContextOptions))
+            using (PgDbContext dbContext = new(_pgContextOptions))
             {
-                return await dbContext.Set<Room>().Where(r => r.HotelId == hotelId).ToListAsync();
+                var query = from room in dbContext.Rooms
+                            join roomType in dbContext.RoomTypes
+                            on room.TypeId equals roomType.Id
+                            where (room.HotelId == hotelId)
+                                    && (string.IsNullOrEmpty(typeName) || roomType.Name.Contains(typeName))
+                                    && (capacity == 0 || roomType.Capacity == capacity)
+                            select room;
+
+                return await query.ToListAsync();
             }
         }
     }

@@ -24,7 +24,7 @@ namespace Hotels.Infrastructure.Services
             await _hotelsRepository.Add(hotel);
         }
 
-        public async Task Remove(long hotelId)
+        public async Task Remove(Guid hotelId)
         {
             if (!await IsExist(hotelId))
             {
@@ -46,7 +46,7 @@ namespace Hotels.Infrastructure.Services
             await _hotelsRepository.Update(hotel);
         }
 
-        public async Task<Hotel?> Get(long hotelId)
+        public async Task<Hotel?> Get(Guid hotelId)
         {
             return await _hotelsRepository.Get(hotelId);
         }
@@ -61,7 +61,7 @@ namespace Hotels.Infrastructure.Services
             return await _hotelsRepository.GetAllByStars(stars);
         }
 
-        private async Task<bool> IsExist(long id)
+        private async Task<bool> IsExist(Guid id)
         {
             Hotel? existedHotel = await _hotelsRepository.Get(id);
             return (existedHotel != null);

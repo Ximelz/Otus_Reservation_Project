@@ -5,19 +5,17 @@ using Hotels.Infrastructure.Repositories;
 
 namespace Hotels.xUnitTests
 {
-    public class HotelsSqlRepositoryTest : BaseSqlRepositoryTest, IDisposable
+    public class HotelsSqlRepositoryTest : IDisposable
     {
         private IHotelsRepository _hotelsRepository;
         private PgDbContextOptions _pgOptionsBuilder;
 
         public HotelsSqlRepositoryTest() : base()
         {
-            _pgOptionsBuilder = new(_dbConfigurationFilePath);
+            _pgOptionsBuilder = new();
             _pgOptionsBuilder.DatabaseName = "ReservationHotelsTest";
 
-            Assert.True(File.Exists(_dbConfigurationFilePath));
-
-            using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            using (PgDbContext dbContext = new PgDbContext(_pgOptionsBuilder))
             {
                 dbContext.Database.EnsureDeleted();
                 dbContext.Database.EnsureCreated();
@@ -26,7 +24,7 @@ namespace Hotels.xUnitTests
 
             try
             {
-                _hotelsRepository = new HotelsSqlRepository(_pgOptionsBuilder.GetOptions());
+                _hotelsRepository = new HotelsSqlRepository(_pgOptionsBuilder);
             }
             catch (Exception ex)
             {
@@ -36,7 +34,7 @@ namespace Hotels.xUnitTests
 
         public void Dispose()
         {
-            using (SqlDatabaseContext dbContext = new(_pgOptionsBuilder.GetOptions()))
+            using (PgDbContext dbContext = new(_pgOptionsBuilder))
             {
                 dbContext.Database.EnsureDeleted();
                 dbContext.SaveChanges();
@@ -46,7 +44,7 @@ namespace Hotels.xUnitTests
         [Fact]
         public async Task TestHotelNotExist()
         {
-            Hotel? hotel = await _hotelsRepository.Get(-1);
+            Hotel? hotel = await _hotelsRepository.Get(Guid.Empty);
             Assert.True(hotel == null);
         }
 
@@ -55,7 +53,6 @@ namespace Hotels.xUnitTests
         {
             Hotel newHotel = new();
 
-            // ставим уникальное имя, по которому будем искать добавленную запись
             newHotel.Name = "Astoria";
             newHotel.Stars = 5;
             newHotel.Address = "Gus Hrustalniy, Central Street, 177";
@@ -80,7 +77,6 @@ namespace Hotels.xUnitTests
 
             Hotel newHotel2 = new();
 
-            // ставим уникальное имя, по которому будем искать добавленную запись
             newHotel2.Name = "Astoria";
             newHotel2.Stars = 5;
             newHotel2.Address = "Gus Hrustalniy, Central Street, 177";
@@ -131,7 +127,7 @@ namespace Hotels.xUnitTests
             newHotel.Phone = "+74924123377";
             newHotel.Email = "service@gh-astoria-hotel.ru";
 
-            long id = 0;
+            Guid id = Guid.Empty;
             // добавление записи отеля
             try
             {
@@ -208,7 +204,7 @@ namespace Hotels.xUnitTests
             newHotel.Name = "Astoria";
             newHotel.Stars = 5;
             newHotel.Address = "Gus Hrustalniy, Central Street, 177";
-            newHotel.CountryId = 1;
+            newHotel.CountryId = 643;
             newHotel.Phone = "+74924123377";
             newHotel.Email = "service@gh-astoria-hotel.ru";
 
@@ -226,7 +222,7 @@ namespace Hotels.xUnitTests
             IReadOnlyList<Hotel> hotels = new List<Hotel>();
             try
             {
-                hotels = await _hotelsRepository.GetAllByCountry(1);
+                hotels = await _hotelsRepository.GetAllByCountry(643);
             }
             catch (Exception ex)
             {
@@ -250,7 +246,7 @@ namespace Hotels.xUnitTests
             newHotel.Name = "Astoria";
             newHotel.Stars = 5;
             newHotel.Address = "Gus Hrustalniy, Central Street, 177";
-            newHotel.CountryId = 1;
+            newHotel.CountryId = 643;
             newHotel.Phone = "+74924123377";
             newHotel.Email = "service@gh-astoria-hotel.ru";
 

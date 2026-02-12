@@ -18,39 +18,23 @@ namespace Hotels.Infrastructure.Services
             await _roomsRepository.Add(room);
         }
 
-        public async Task<Room?> Get(long roomId)
+        public async Task<Room?> Get(Guid roomId)
         {
             return await _roomsRepository.Get(roomId);
         }
 
-        public async Task<IReadOnlyList<Room>> GetAllByHotel(long hotelId)
+        public async Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
+                                                                  string typeName = "",
+                                                                  int capacity = 1,
+                                                                  double minPrice = 0,
+                                                                  double maxPrice = double.MaxValue)
         {
-            return await _roomsRepository.GetAllByHotel(hotelId);
+            return await _roomsRepository.GetAllByParameters(hotelId, typeName, capacity, minPrice, maxPrice);
         }
 
-        public Task<IReadOnlyList<Room>> GetAllByCapacity(long hotelId, int minCapacity, int maxCapacity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IReadOnlyList<Room>> GetAllByComfortLevel(long hotelId, int minComfortLevel, int maxComfortLevel)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IReadOnlyList<Room>> GetAllByPrice(long hotelId, decimal minPrice, decimal maxPrice)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task Remove(long roomId)
+        public async Task Remove(Guid roomId)
         {
             await _roomsRepository.Remove(roomId);
-        }
-
-        public async Task RemoveAll(long hotelId)
-        {
-            await _roomsRepository.Remove(-1);
         }
 
         public async Task Update(Room room)

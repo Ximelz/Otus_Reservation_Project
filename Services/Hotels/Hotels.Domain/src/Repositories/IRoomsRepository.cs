@@ -9,11 +9,15 @@ namespace Hotels.Domain.Repositories
     public interface IRoomsRepository
     {
         Task Add(Room room);
-        Task Remove(long roomId);
+        Task Remove(Guid roomId);
         Task Remove(Room room);
         Task Update(Room room);
-        Task<Room?> Get(long roomId);
+        Task<Room?> Get(Guid roomId);
 
-        Task<IReadOnlyList<Room>> GetAllByHotel(long hotelId);
+        Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
+                                                     string typeName = "", 
+                                                     int capacity = 1, 
+                                                     double minPrice = 0, 
+                                                     double maxPrice = double.MaxValue);
     }
 }
