@@ -25,7 +25,7 @@ namespace Hotels.Infrastructure.Services
 
         public async Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
                                                                   string typeName = "",
-                                                                  int capacity = 1,
+                                                                  int capacity = 0,
                                                                   double minPrice = 0,
                                                                   double maxPrice = double.MaxValue)
         {

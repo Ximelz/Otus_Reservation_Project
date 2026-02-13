@@ -1,7 +1,6 @@
 ﻿using Hotels.Domain.Entities;
 using Hotels.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Hotels.Infrastructure.Repositories
 {
@@ -69,7 +68,7 @@ namespace Hotels.Infrastructure.Repositories
 
         public async Task<IReadOnlyList<Room>> GetAllByParameters(Guid hotelId,
                                                                   string typeName = "",
-                                                                  int capacity = 1,
+                                                                  int capacity = 0,
                                                                   double minPrice = 0,
                                                                   double maxPrice = double.MaxValue)
         {
@@ -78,9 +77,8 @@ namespace Hotels.Infrastructure.Repositories
                 var query = from room in dbContext.Rooms
                             join roomType in dbContext.RoomTypes
                             on room.TypeId equals roomType.Id
-                            where (room.HotelId == hotelId)
-                                    && (string.IsNullOrEmpty(typeName) || roomType.Name.Contains(typeName))
-                                    && (capacity == 0 || roomType.Capacity == capacity)
+                            where (room.HotelId == hotelId) && (string.IsNullOrEmpty(typeName) || roomType.Name.Contains(typeName))
+                                  && (capacity == 0 || roomType.Capacity == capacity)
                             select room;
 
                 return await query.ToListAsync();
