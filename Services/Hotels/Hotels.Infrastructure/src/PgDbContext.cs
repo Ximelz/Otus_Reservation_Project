@@ -11,6 +11,7 @@ namespace Hotels.Infrastructure
         public DbSet<Country> Countries => Set<Country>();
         public DbSet<RoomType> RoomTypes => Set<RoomType>();
         public DbSet<RatePlan> RatePlans => Set<RatePlan>();
+        public DbSet<SeasonPrice> SeasonPrices => Set<SeasonPrice>();
 
         private PgDbContextOptions _pgOptions;
 
@@ -185,6 +186,40 @@ namespace Hotels.Infrastructure
                       .IsRequired();
 
                 entity.HasIndex(r => r.HotelId);
+            });
+
+            modelBuilder.Entity<SeasonPrice>(entity =>
+            {
+                entity.ToTable("season_prices");
+
+                entity.HasKey(h => h.Id)
+                      .HasName("pk_season_prices");
+
+                entity.Property(p => p.Id)
+                      .HasColumnName("id")
+                      .HasColumnType("uuid")
+                      .ValueGeneratedNever();
+
+                entity.Property(p => p.RoomTypeId)
+                      .HasColumnName("room_type_id")
+                      .HasColumnType("uuid");
+
+                entity.Property(p => p.Multiplier)
+                      .HasColumnName("multiplier")
+                      .HasColumnType("numeric")
+                      .IsRequired();
+
+                entity.Property(p => p.DateFrom)
+                      .HasColumnName("date_from")
+                      .HasColumnType("date")
+                      .IsRequired();
+
+                entity.Property(p => p.DateTo)
+                      .HasColumnName("date_to")
+                      .HasColumnType("date")
+                      .IsRequired();
+
+                entity.HasIndex(r => r.RoomTypeId);
             });
         }
 

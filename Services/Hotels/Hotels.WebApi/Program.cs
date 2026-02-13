@@ -42,6 +42,12 @@ namespace Hotels.WebApi
             builder.Services.AddSingleton(ratesRepository);
             builder.Services.AddSingleton<IRatePlansService, RatePlansService>();
 
+
+            ISeasonPriceRepository seasonPriceRepository = new SeasonPriceSqlRepository(pgOptions);
+
+            builder.Services.AddSingleton(seasonPriceRepository);
+            builder.Services.AddSingleton<ISeasonPriceService, SeasonPriceService>();
+
             builder.Services.AddControllers();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

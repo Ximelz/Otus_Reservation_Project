@@ -12,10 +12,14 @@ namespace Hotels.WebApi.Controllers
     public class RoomsController : ControllerBase
     {
         private IRoomsService _roomsService;
+        private IRatePlansService _ratePlansService;
+        private ISeasonPriceService _seasonPriceService;
 
-        public RoomsController(IRoomsService roomsService)
+        public RoomsController(IRoomsService roomsService, IRatePlansService ratePlansService, ISeasonPriceService seasonPriceService)
         {
             _roomsService = roomsService;
+            _ratePlansService = ratePlansService;
+            _seasonPriceService = seasonPriceService;
         }
 
         // GET api/<RoomsController>/5
@@ -51,6 +55,33 @@ namespace Hotels.WebApi.Controllers
         public async Task<IReadOnlyList<Room>> GetAllByHotel(Guid id)
         {
             return await _roomsService.GetAllByParameters(hotelId: id);
+        }
+
+        // GET api/<RoomsController>/hotel/5
+        [HttpGet("{id}/priceFor/year/{year}/month/{month}/day/{day}")]
+        public async Task<double> GetPrice(Guid id, int year, int month, int day)
+        {
+            Room? room = await _roomsService.Get(id);
+            if (room == null)
+            {
+                return 0;
+            }
+
+            float multiplier = 1.0f;
+            var multipliers = await _seasonPriceService.GetByDate(room.TypeId, new DateOnly(year, month, day));
+            if (multipliers.Count > 0)
+            {
+                multiplier = multipliers.First().Multiplier;
+            }
+
+            double price = 0;
+            var rates = await _ratePlansService.Get(rp => rp.RoomTypeId == id);
+            if (rates.Count > 0)
+            {
+                price = rates.First().Price * multiplier;
+            }
+
+            return price;
         }
     }
 }
