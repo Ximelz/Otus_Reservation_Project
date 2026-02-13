@@ -7,7 +7,7 @@ using Hotels.Infrastructure.Services;
 
 namespace Hotels.xUnitTests
 {
-    public class SeasonPricesSqlRepositoryTest
+    public class SeasonPricesSqlRepositoryTest : IDisposable
     {
         private ISeasonPriceRepository _seasonPriceRepository;
         private PgDbContextOptions _pgOptionsBuilder;
@@ -244,6 +244,7 @@ namespace Hotels.xUnitTests
 
             Assert.True(seasonPrices.Count == 0);
 
+            // несовпадение по году, совпадение по месяцу и дню
             try
             {
                 var testDate = new DateOnly(2999, 5, 1);
@@ -255,7 +256,79 @@ namespace Hotels.xUnitTests
                 Assert.Fail(ex.Message);
             }
 
-            Assert.True(seasonPrices.Count == 1);
+            Assert.True(seasonPrices.Count == 0);
+
+            // несовпадение по году, несовпадение по месяцу, совпадение по дню
+            try
+            {
+                var testDate = new DateOnly(2999, 12, 1);
+                ISeasonPriceService seasonPriceService = new SeasonPriceService(_seasonPriceRepository);
+                seasonPrices = await seasonPriceService.GetByDate(newSeasonPrice.RoomTypeId, testDate);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+
+            Assert.True(seasonPrices.Count == 0);
+
+            // несовпадение по году, несовпадение по месяцу, несовпадение по дню
+            try
+            {
+                var testDate = new DateOnly(2999, 12, 15);
+                ISeasonPriceService seasonPriceService = new SeasonPriceService(_seasonPriceRepository);
+                seasonPrices = await seasonPriceService.GetByDate(newSeasonPrice.RoomTypeId, testDate);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+
+            Assert.True(seasonPrices.Count == 0);
+
+            // совпадение по году, несовпадение по месяцу, несовпадение по дню
+            try
+            {
+                var testDate = new DateOnly(2026, 12, 15);
+                ISeasonPriceService seasonPriceService = new SeasonPriceService(_seasonPriceRepository);
+                seasonPrices = await seasonPriceService.GetByDate(newSeasonPrice.RoomTypeId, testDate);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+
+            Assert.True(seasonPrices.Count == 0);
+
+            // несовпадение по году, совпадение по месяцу, несовпадение по дню
+            try
+            {
+                var testDate = new DateOnly(2026, 5, 15);
+                ISeasonPriceService seasonPriceService = new SeasonPriceService(_seasonPriceRepository);
+                seasonPrices = await seasonPriceService.GetByDate(newSeasonPrice.RoomTypeId, testDate);
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+
+            Assert.True(seasonPrices.Count == 0);
+
+            // совпадение по году, совпадение по месяцу, совпадение по дню
+            for (DateOnly date = newSeasonPrice.DateFrom; date <= newSeasonPrice.DateTo; date = date.AddDays(1))
+            {
+                try
+                {
+                    ISeasonPriceService seasonPriceService = new SeasonPriceService(_seasonPriceRepository);
+                    seasonPrices = await seasonPriceService.GetByDate(newSeasonPrice.RoomTypeId, date);
+                }
+                catch (Exception ex)
+                {
+                    Assert.Fail(ex.Message);
+                }
+
+                Assert.True(seasonPrices.Count == 1);
+            }
 
             var addedSeasonPrice = seasonPrices.First();
             Assert.Equal(newSeasonPrice.Multiplier, addedSeasonPrice.Multiplier);

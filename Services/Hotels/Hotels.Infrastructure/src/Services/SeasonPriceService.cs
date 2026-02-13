@@ -72,15 +72,18 @@ namespace Hotels.Infrastructure.Services
         public async Task<IReadOnlyList<SeasonPrice>> GetByDate(Guid roomTypeId, DateOnly date)
         {
             return await _seasonPriceRepository.Get(sp => (sp.RoomTypeId == roomTypeId)
+                                                          && (date.Year == sp.DateFrom.Year && date.Year == sp.DateTo.Year)
                                                           && ((date.Month > sp.DateFrom.Month
                                                                && date.Month < sp.DateTo.Month)
                                                               || (sp.DateFrom.Month == sp.DateTo.Month
-                                                                  && sp.DateTo.Month == date.Month
+                                                                  && date.Month == sp.DateTo.Month
                                                                   && date.Day >= sp.DateFrom.Day
                                                                   && date.Day <= sp.DateTo.Day)
                                                               || (date.Month == sp.DateFrom.Month
+                                                                  && date.Month < sp.DateTo.Month
                                                                   && date.Day >= sp.DateFrom.Day)
-                                                              || (sp.DateTo.Month == date.Month
+                                                              || (date.Month == sp.DateTo.Month
+                                                                  && date.Month > sp.DateFrom.Month
                                                                   && date.Day <= sp.DateTo.Day)));
         }
 
