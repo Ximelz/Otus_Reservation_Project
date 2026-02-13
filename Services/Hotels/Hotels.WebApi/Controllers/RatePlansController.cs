@@ -26,7 +26,8 @@ namespace Hotels.WebApi.Controllers
         [HttpPost]
         public async Task Post(RatePlan rate)
         {
-            if (await _ratesService.Get(rp => rp.Id == rate.Id) == null)
+            var rates = await _ratesService.Get(rp => rp.Id == rate.Id);
+            if (rates.Count == 0)
             {
                 await _ratesService.Add(rate);
             }
