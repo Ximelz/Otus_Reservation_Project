@@ -57,6 +57,20 @@ namespace Hotels.WebApi.Controllers
             return await _seasonPriceService.Get(guid);
         }
 
+        // GET api/seasonPrice/hotel/5
+        [HttpGet("hotel/{id}")]
+        public async Task<IReadOnlyList<SeasonPrice>> GetAllByHotel(Guid id)
+        {
+            return await _seasonPriceService.Get(sp => sp.HotelId == id);
+        }
+
+        // GET api/seasonPrice/roomType/5
+        [HttpGet("roomType/{id}")]
+        public async Task<IReadOnlyList<SeasonPrice>> GetAllByRoomType(Guid id)
+        {
+            return await _seasonPriceService.Get(sp => sp.RoomTypeId == id);
+        }
+
         // GET api/month/4/day/30/roomTypeId
         [HttpGet("month/{month}/day/{day}/roomType/{roomTypeId}")]
         public async Task<IReadOnlyList<SeasonPrice>> GetByDate(int month, int day, Guid roomTypeId)
