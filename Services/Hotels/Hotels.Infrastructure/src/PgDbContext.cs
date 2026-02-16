@@ -200,6 +200,11 @@ namespace Hotels.Infrastructure
                       .HasColumnType("uuid")
                       .ValueGeneratedNever();
 
+                entity.Property(p => p.HotelId)
+                      .HasColumnName("hotel_id")
+                      .HasColumnType("uuid")
+                      .ValueGeneratedNever();
+
                 entity.Property(p => p.RoomTypeId)
                       .HasColumnName("room_type_id")
                       .HasColumnType("uuid");

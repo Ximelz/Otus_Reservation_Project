@@ -3,6 +3,7 @@ using System;
 using Hotels.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hotels.Infrastructure.Migrations
 {
     [DbContext(typeof(PgDbContext))]
-    partial class SqlDatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260215185820_AddHotelIdToSeasonPrice")]
+    partial class AddHotelIdToSeasonPrice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -214,6 +217,7 @@ namespace Hotels.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_season_prices");
 
+                    b.HasIndex("HotelId");
                     b.HasIndex("RoomTypeId");
 
                     b.ToTable("season_prices", (string)null);

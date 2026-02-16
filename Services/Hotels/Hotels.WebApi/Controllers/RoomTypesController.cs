@@ -56,7 +56,7 @@ namespace Hotels.WebApi.Controllers
         }
 
         // GET api/roomType/hotel/5
-        [HttpGet("roomType/hotel/{hotelId}")]
+        [HttpGet("hotel/{hotelId}")]
         public async Task<IReadOnlyList<RoomType>> GetByCountry(string hotelId)
         {
             Guid guid = Guid.Empty;
@@ -69,7 +69,7 @@ namespace Hotels.WebApi.Controllers
         }
 
         // GET api/roomType/hotel/5/typeName/name
-        [HttpGet("roomType/hotel/{hotelId}/typeName/{name}")]
+        [HttpGet("hotel/{hotelId}/typeName/{name}")]
         public async Task<IReadOnlyList<RoomType>> GetByName(string hotelId, string name)
         {
             Guid guid = Guid.Empty;
