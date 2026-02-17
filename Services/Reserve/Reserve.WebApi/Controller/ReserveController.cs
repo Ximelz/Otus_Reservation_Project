@@ -1,87 +1,167 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel;
 
 
 namespace ReservService
 {
     [Route("api/reservations")]
+    [ApiController]
     public class ReserveController : ControllerBase
     {
         private readonly IReserveService _service;
         public ReserveController(IReserveService service) => _service = service;
 
         [HttpGet("{id}/byRoom")]
-        public async Task<List<Reserve>> GetByRoom(Guid id)
+        public async Task<ActionResult<List<Reserve>>> GetByRoom(Guid id)
         {
-            CancellationToken cts = new CancellationToken();
-            return await _service.GetReservesByRoomId(id, cts);
+            try
+            {
+                CancellationToken cts = new CancellationToken();
+                var reserves = await _service.GetReservesByRoomId(id, cts);
+                return Ok(reserves);
+            }
+            catch
+            {
+                return NotFound();
+            }
         }
 
         [HttpGet("{id}/byHotel")]
-        public async Task<List<Reserve>> GetByHotel(Guid id)
+        public async Task<ActionResult<List<Reserve>>> GetByHotel(Guid id)
         {
-            CancellationToken cts = new CancellationToken();
-            return await _service.GetReservesByHotelId(id, cts);
+            try
+            {
+                CancellationToken cts = new CancellationToken();
+                var reserves = await _service.GetReservesByHotelId(id, cts);
+                return Ok(reserves);
+            }
+            catch
+            {
+                return NotFound();
+            }
+        }
+
+        [HttpGet("{id}/byUser")]
+        public async Task<ActionResult<List<Reserve>>> GetByUser(Guid id)
+        {
+            try
+            {
+                CancellationToken cts = new CancellationToken();
+                var reserves = await _service.GetReservesByUserId(id, cts);
+                return Ok(reserves);
+            }
+            catch
+            {
+                return NotFound();
+            }
         }
 
         [HttpGet("{id}")]
-        public async Task<List<Reserve>> Get(Guid id)
+        public async Task<ActionResult<Reserve>> Get(Guid id)
         {
-            CancellationToken cts = new CancellationToken();
-            return await _service.GetReservesByUserId(id, cts);
+            try
+            {
+                CancellationToken cts = new CancellationToken();
+                var reserves = await _service.GetReserveById(id, cts);
+                return Ok(reserves);
+            }
+            catch
+            {
+                return NotFound();
+            }
         }
 
         [HttpPost]
-        public async void Post(ReserveDto reserveDto)
+        public async Task<ActionResult> Post(ReserveDto reserveDto)
         {
-            CancellationToken ct = new CancellationToken();
-            await _service.RegisterReserve(ReserveFactory.CreateReserve(reserveDto), ct);
+            try
+            {
+                CancellationToken ct = new CancellationToken();
+                var reserve = ReserveFactory.CreateReserve(reserveDto);
+                await _service.RegisterReserve(reserve, ct);
+                return Ok(reserve);
+            }
+            catch
+            {
+                return NoContent();
+            }
         }
 
         [HttpPut("{id}/check-in/{CheckIn}")]
-        public async void PutUpdateCheckIn(Guid id, DateTime CheckIn)
+        public async Task<IActionResult> PutUpdateCheckIn(Guid id, DateTime CheckIn)
         {
-            CancellationToken ct = new CancellationToken();
-            var reserve = await _service.GetReserveById(id, ct);
+            try
+            {
+                CancellationToken ct = new CancellationToken();
+                var reserve = await _service.GetReserveById(id, ct);
 
-            if (reserve == null)
-                return;
+                if (reserve == null)
+                    return NotFound();
 
-            reserve.ChangeDates(CheckIn, reserve.CheckOut);
-            await _service.UpdateReserve(reserve, ct);
+                reserve.ChangeDates(CheckIn, reserve.CheckOut);
+                await _service.UpdateReserve(reserve, ct);
+                return Ok(reserve);
+            }
+            catch
+            {
+                return NoContent();
+            }
         }
 
         [HttpPut("{id}/check-out/{CheckOut}")]
-        public async void PutUpdateCheckOut(Guid id, DateTime CheckOut)
+        public async Task<IActionResult> PutUpdateCheckOut(Guid id, DateTime CheckOut)
         {
-            CancellationToken ct = new CancellationToken();
-            var reserve = await _service.GetReserveById(id, ct);
+            try
+            {
+                CancellationToken ct = new CancellationToken();
+                var reserve = await _service.GetReserveById(id, ct);
 
-            if (reserve == null)
-                return;
+                if (reserve == null)
+                    return NotFound();
 
-            reserve.ChangeDates(reserve.CheckIn, CheckOut);
-            await _service.UpdateReserve(reserve, ct);
+                reserve.ChangeDates(reserve.CheckIn, CheckOut);
+                await _service.UpdateReserve(reserve, ct);
+                return Ok(reserve);
+            }
+            catch
+            {
+                return NoContent();
+            }
         }
 
         [HttpPut("{id}/cost/{cost}")]
-        public async void PutUpdateCost(Guid id, long cost)
+        public async Task<IActionResult> PutUpdateCost(Guid id, long cost)
         {
-            CancellationToken ct = new CancellationToken();
-            var reserve = await _service.GetReserveById(id, ct);
+            try
+            {
+                CancellationToken ct = new CancellationToken();
+                var reserve = await _service.GetReserveById(id, ct);
 
-            if (reserve == null)
-                return;
+                if (reserve == null)
+                    return NotFound();
 
-            reserve.MakeAPay(cost);
-            await _service.UpdateReserve(reserve, ct);
+                reserve.MakeAPay(cost);
+                await _service.UpdateReserve(reserve, ct);
+                return Ok(reserve);
+            }
+            catch
+            {
+                return NoContent();
+            }
         }
 
         [HttpPut("{id}/cancel")]
-        public async void PutCancel(Guid id)
+        public async Task<IActionResult> PutCancel(Guid id)
         {
-            CancellationToken ct = new CancellationToken();
-            await _service.CancelReserve(id, ct);
+            try
+            {
+                CancellationToken ct = new CancellationToken();
+                await _service.CancelReserve(id, ct);
+                return Ok();
+            }
+            catch
+            {
+                return NoContent();
+            }
         }
     }
 }

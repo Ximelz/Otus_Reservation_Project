@@ -11,7 +11,7 @@ namespace ReservService
 {
     public class RoomReserve
     {
-        public RoomReserve(Guid Id, HotelReserve Hotel, string RoomNumb, RoomReserveCapacity Capacity, RoomReserveStatus Status, long price)
+        public RoomReserve(Guid Id, HotelReserve Hotel, string RoomNumb, RoomReserveCapacity Capacity, RoomReserveStatus Status, double price)
         {
             this.Id = Id;
             this.Hotel = Hotel;
@@ -22,7 +22,7 @@ namespace ReservService
         }
         public Guid Id { get; private set; }
         public string RoomNumb { get; private set; }
-        public long Price { get; private set; }
+        public double Price { get; private set; }
         public HotelReserve Hotel { get; private set; }
         public RoomReserveCapacity Capacity { get; private set; }
         public RoomReserveStatus Status { get; private set; }

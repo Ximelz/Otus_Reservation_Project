@@ -8,7 +8,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:5001"
+      "applicationUrl": "http://localhost:12254"
     },
     "https": {
       "commandName": "Project",
@@ -34,7 +34,7 @@
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
         "ASPNETCORE_HTTPS_PORTS": "8081",
-        "ASPNETCORE_HTTP_PORTS": "5001"
+        "ASPNETCORE_HTTP_PORTS": "12254"
       },
       "publishAllPorts": true,
       "useSSL": true
