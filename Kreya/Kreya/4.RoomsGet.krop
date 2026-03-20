@@ -1,0 +1,15 @@
+{
+  "details": {
+    "path": "/api/rooms/b9e348e0-0b41-40ab-93a6-f7bb1bfb2e1c",
+    "method": "GET",
+    "pathParams": []
+  },
+  "requests": [
+    {
+      "contentType": "none"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "rest",
+  "typeHint": "GET"
+}

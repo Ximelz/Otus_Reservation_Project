@@ -12,7 +12,7 @@ namespace ReservService
     {
         public Guid Id { get; set; }
         public string RoomNumb { get; set; }
-        public long Price { get; set; }
+        public double Price { get; set; }
         public HotelReserveModel Hotel { get; set; }
         public int adultCount { get; set; }
         public int childCount { get; set; }

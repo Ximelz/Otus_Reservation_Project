@@ -1,0 +1,12 @@
+{
+  "settings": [
+    {
+      "options": {
+        "rest": {
+          "endpoint": "http://localhost:12321",
+          "disableServerCertificateValidation": false
+        }
+      }
+    }
+  ]
+}

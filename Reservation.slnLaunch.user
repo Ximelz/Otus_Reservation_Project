@@ -31,16 +31,6 @@
         "Path": "Services\\Hotels\\Hotels.WebApi\\Hotels.WebApi.csproj",
         "Action": "Start",
         "DebugTarget": "http"
-      },
-      {
-        "Path": "Services\\Hotels\\Hotels.Infrastructure\\Hotels.Infrastructure.csproj",
-        "Action": "Start",
-        "DebugTarget": "Hotels.Infrastructure"
-      },
-      {
-        "Path": "Services\\Hotels\\Hotels.Domain\\Hotels.Domain.csproj",
-        "Action": "Start",
-        "DebugTarget": "Hotels.Domain"
       }
     ]
   }
