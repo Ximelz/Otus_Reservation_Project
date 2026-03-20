@@ -4,6 +4,8 @@
 
 namespace ReservService
 {
+    [Route("api/reservations")]
+    [ApiController]
     public class ReserveController : ControllerBase
     {
         private readonly IReserveService _service;
