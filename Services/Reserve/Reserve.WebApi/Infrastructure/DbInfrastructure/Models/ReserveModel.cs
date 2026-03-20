@@ -11,7 +11,7 @@ namespace ReservService
         public Guid Id { get; set; }
         public PersonReserveModel UserReserve { get; set; }
         public RoomReserveModel RoomReserve { get; set; }
-        public long Cost { get; set; }
+        public double Cost { get; set; }
         public DateTime CheckIn { get; set; }
         public DateTime CheckOut { get; set; }
         public StatusReserve Status { get; set; }

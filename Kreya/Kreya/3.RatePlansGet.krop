@@ -1,0 +1,15 @@
+{
+  "details": {
+    "path": "/api/rates/a0333593-c255-4504-a34d-8e0f89a8d1c2",
+    "method": "GET",
+    "pathParams": []
+  },
+  "requests": [
+    {
+      "contentType": "none"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "rest",
+  "typeHint": "GET"
+}
