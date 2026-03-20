@@ -1,0 +1,10 @@
+{
+  "id": "d449db79-5b5b-4ff0-aa15-e9357ec19218",
+  "name": "SomeHotel1",
+  "stars": 3,
+  "description": "SomeDescript1",
+  "countryId": 5,
+  "address": "SomeIndex1,SomeCountry1,SomeCity1,SomeStreet1,SomeNumb1",
+  "phone": "SomePhone1",
+  "email": "SomeEmail1"
+}

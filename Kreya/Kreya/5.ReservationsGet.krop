@@ -1,0 +1,15 @@
+{
+  "details": {
+    "path": "/api/reservations/27005c02-cd66-4bac-b7d7-4be075c7a046",
+    "method": "GET",
+    "pathParams": []
+  },
+  "requests": [
+    {
+      "contentType": "none"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "rest",
+  "typeHint": "GET"
+}

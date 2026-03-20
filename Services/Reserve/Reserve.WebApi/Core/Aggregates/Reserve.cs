@@ -5,7 +5,7 @@ namespace ReservService
 {
 	public class Reserve
     {
-		public Reserve(Guid Id, PersonReserve UserReserve, RoomReserve RoomReserve, DateTime CheckIn, DateTime CheckOut, StatusReserve Status, PersonsCount Persons, long Cost)
+		public Reserve(Guid Id, PersonReserve UserReserve, RoomReserve RoomReserve, DateTime CheckIn, DateTime CheckOut, StatusReserve Status, PersonsCount Persons, double Cost)
 		{
 			this.Id = Id;
 			this.UserReserve = UserReserve;
@@ -19,7 +19,7 @@ namespace ReservService
         public Guid Id { get; private set; }
         public PersonReserve UserReserve { get; private set; }
         public RoomReserve RoomReserve { get; private set; }
-        public long Cost { get; private set; }
+        public double Cost { get; private set; }
 		public DateTime CheckIn { get; private set; }
 		public DateTime CheckOut { get; private set; }
 		public StatusReserve Status {  get; private set; }
