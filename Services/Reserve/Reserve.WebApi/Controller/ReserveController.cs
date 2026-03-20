@@ -38,7 +38,7 @@ namespace ReservService
             }
         }
 
-        [HttpPut("{id}/check-in")]
+        [HttpPut("{id}/checkIn")]
         public async Task<IActionResult> PutUpdateCheckIn(Guid id, [FromBody] DateTime CheckIn)
         {
             try
@@ -59,7 +59,7 @@ namespace ReservService
             }
         }
 
-        [HttpPut("{id}/check-out")]
+        [HttpPut("{id}/checkOut")]
         public async Task<IActionResult> PutUpdateCheckOut(Guid id, [FromBody] DateTime CheckOut)
         {
             try
