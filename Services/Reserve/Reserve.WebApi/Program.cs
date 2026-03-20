@@ -12,6 +12,7 @@
 
             builder.Services.AddSingleton(dbContext);
             builder.Services.AddSingleton<IReserveRepository, PostgresSqlReserveRepository>();
+            builder.Services.AddSingleton<IReservesCalendarService, ReservesCalendarService>();
             builder.Services.AddSingleton<IReserveService, ReserveService>();
             builder.Services.AddControllers();
 

@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ReservService
 {
@@ -18,9 +13,9 @@ namespace ReservService
 
             using (var db = dbContext.CreateDbContext())
             {
-                var user = db.Set<PersonReserveModel>().Find(reserve.UserReserve.Id);
-                var room = db.Set<RoomReserveModel>().Find(reserve.RoomReserve.Id);
-                var hotel = db.Set<HotelReserveModel>().Find(reserve.RoomReserve.Hotel.Id);
+                var user = db.Users.Find(reserve.UserReserve.Id);
+                var room = db.Rooms.Find(reserve.RoomReserve.Id);
+                var hotel = db.Hotels.Find(reserve.RoomReserve.Hotel.Id);
 
                 var newReserve = reserve.MapToModel();
 
@@ -79,35 +74,36 @@ namespace ReservService
             }
         }
 
-        public Task<List<Reserve>> GetListAsync(Func<Reserve, bool> predicate, CancellationToken ct)
+        public Task<IReadOnlyList<Reserve>> GetListAsync(Func<Reserve, bool> predicate, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
             using (var db = dbContext.CreateDbContext())
             {
-                return Task.FromResult(db.Reserves
-                                         .Include(u => u.UserReserve)
-                                         .Include(u => u.RoomReserve)
-                                         .ThenInclude(u => u.Hotel)
-                                         .ToList()
-                                         .MapListFromModel()
-                                         .Where(predicate)
-                                         .ToList());
+                IReadOnlyList<Reserve> reserves = db.Reserves.Include(u => u.UserReserve)
+                                                             .Include(u => u.RoomReserve)
+                                                             .ThenInclude(u => u.Hotel)
+                                                             .ToList()
+                                                             .MapListFromModel()
+                                                             .Where(predicate)
+                                                             .ToList();
+
+                return Task.FromResult(reserves);
             }
         }
 
-        public Task<List<Reserve>> GetAllAsync(CancellationToken ct)
+        public Task<IReadOnlyList<Reserve>> GetAllAsync(CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
             using (var db = dbContext.CreateDbContext())
             {
-                return Task.FromResult(db.Reserves
-                                         .Include(u => u.UserReserve)
-                                         .Include(u => u.RoomReserve)
-                                         .ThenInclude(u => u.Hotel)
-                                         .ToList()
-                                         .MapListFromModel());
+                IReadOnlyList<Reserve> reserves = db.Reserves.Include(u => u.UserReserve)
+                                                             .Include(u => u.RoomReserve)
+                                                             .ThenInclude(u => u.Hotel)
+                                                             .ToList()
+                                                             .MapListFromModel();
+                return Task.FromResult(reserves);
             }
         }
     }
