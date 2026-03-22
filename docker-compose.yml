@@ -1,6 +1,6 @@
-﻿services:
+services:
   postgres:
-    image: postgres
+    image: postgres:16
     container_name: postgres_db
     environment:
       POSTGRES_USER: postgres
@@ -9,7 +9,20 @@
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
     networks:
       - app-network
     restart: unless-stopped
@@ -18,29 +31,24 @@
     image: ${DOCKER_REGISTRY-}reservservice
     build:
       context: .
-      dockerfile: Services/ReservService/Dockerfile
+      dockerfile: Services/Reserve/Reserve.WebApi/Dockerfile
     environment:
-        ASPNETCORE_ENVIRONMENT : Development
-        ASPNETCORE_HTTP_PORTS : 8080
-        DATABASE_URL: postgresql://postgres:12345@postges:5432/ReserveDB
-        DB_HOST: postgres
-        DB_PORT: 5432
-        DB_NAME: ReserveDB
-        DB_USER: postgres
-        DB_PASSWORD: 12345
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      DATABASE_URL: postgresql://postgres:12345@postgres:5432/ReserveDB
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ReserveDB
+      DB_USER: postgres
+      DB_PASSWORD: 12345
     ports:
-      - "8000:8000"
+      - "8000:8080"
     depends_on:
       - postgres
     networks:
       - app-network
     restart: unless-stopped
-        
+
 volumes:
   postgres_data:
 

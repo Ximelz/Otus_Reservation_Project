@@ -4,6 +4,8 @@ using Admin.Application.Services;
 using Admin.Infrastructure.Clients;
 using Admin.Infrastructure.DependencyInjection;
 using Admin.WebApi.Handlers;
+using Hotels.Infrastructure;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -78,9 +80,28 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+// MassTransit with RabbitMQ
+var rabbitHost = builder.Configuration["RabbitMQ:Host"] ?? "localhost";
+builder.Services.AddMassTransit(x =>
+{
+    x.SetKebabCaseEndpointNameFormatter();
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(rabbitHost, "/", h =>
+        {
+            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "guest");
+            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "guest");
+        });
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
 builder.Services.AddAdminPersistence(builder.Configuration);
 
 builder.Services.AddScoped<SystemSettingsService>();
+
+// Hotels database access for admin controllers
+builder.Services.AddSingleton<PgDbContextOptions>();
 
 var hotelsBaseUrl = builder.Configuration["Admin:Hotels:BaseUrl"] ?? "http://localhost:5001";
 var retryPolicy = HttpPolicyExtensions

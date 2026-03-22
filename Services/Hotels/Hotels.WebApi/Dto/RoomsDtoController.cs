@@ -42,7 +42,7 @@ namespace Hotels.WebApi.Controllers
                 double price = 100.0;
 
                 if (ratePlan != null)
-                    price = ratePlan.Price;
+                    price = (double)ratePlan.BasePrice;
 
                 var roomType = await _roomTypesService.Get(room.TypeId);
 

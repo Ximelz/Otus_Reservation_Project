@@ -50,9 +50,32 @@ namespace Hotels.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("address");
 
+                    b.Property<TimeOnly>("CheckInTime")
+                        .HasColumnType("time")
+                        .HasColumnName("check_in_time");
+
+                    b.Property<TimeOnly>("CheckOutTime")
+                        .HasColumnType("time")
+                        .HasColumnName("check_out_time");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("city");
+
                     b.Property<int>("CountryId")
                         .HasColumnType("integer")
                         .HasColumnName("country_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("created_by");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -64,6 +87,12 @@ namespace Hotels.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("email");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -74,16 +103,144 @@ namespace Hotels.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("phone");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("varchar(128)")
+                        .HasColumnName("slug");
+
                     b.Property<int>("Stars")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(0)
                         .HasColumnName("stars");
 
+                    b.Property<string>("Timezone")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(64)")
+                        .HasDefaultValue("Europe/Moscow")
+                        .HasColumnName("timezone");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("updated_by");
+
                     b.HasKey("Id")
                         .HasName("pk_hotels");
 
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("ix_hotels_is_active");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ix_hotels_slug");
+
                     b.ToTable("hotels", (string)null);
+                });
+
+            modelBuilder.Entity("Hotels.Domain.Entities.HotelAmenity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AmenityType")
+                        .HasColumnType("integer")
+                        .HasColumnName("amenity_type");
+
+                    b.Property<string>("CustomName")
+                        .HasColumnType("varchar(128)")
+                        .HasColumnName("custom_name");
+
+                    b.Property<Guid>("HotelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("hotel_id");
+
+                    b.Property<bool>("IsAvailable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_available");
+
+                    b.HasKey("Id")
+                        .HasName("pk_hotel_amenities");
+
+                    b.HasIndex("HotelId")
+                        .HasDatabaseName("ix_hotel_amenities_hotel_id");
+
+                    b.ToTable("hotel_amenities", (string)null);
+                });
+
+            modelBuilder.Entity("Hotels.Domain.Entities.HotelPolicy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("AutoConfirmRules")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("auto_confirm_rules");
+
+                    b.Property<string>("CancellationPolicyText")
+                        .HasColumnType("text")
+                        .HasColumnName("cancellation_policy_text");
+
+                    b.Property<TimeOnly>("CheckInTime")
+                        .HasColumnType("time")
+                        .HasColumnName("check_in_time");
+
+                    b.Property<TimeOnly>("CheckOutTime")
+                        .HasColumnType("time")
+                        .HasColumnName("check_out_time");
+
+                    b.Property<bool>("ConfirmationPendingEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("confirmation_pending_enabled");
+
+                    b.Property<string>("ContactInstructions")
+                        .HasColumnType("text")
+                        .HasColumnName("contact_instructions");
+
+                    b.Property<string>("EarlyCheckInNote")
+                        .HasColumnType("text")
+                        .HasColumnName("early_check_in_note");
+
+                    b.Property<Guid>("HotelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("hotel_id");
+
+                    b.Property<string>("LateCheckOutNote")
+                        .HasColumnType("text")
+                        .HasColumnName("late_check_out_note");
+
+                    b.Property<string>("TermsAndConditionsText")
+                        .HasColumnType("text")
+                        .HasColumnName("terms_and_conditions_text");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.HasKey("Id")
+                        .HasName("pk_hotel_policies");
+
+                    b.HasIndex("HotelId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_hotel_policies_hotel_id");
+
+                    b.ToTable("hotel_policies", (string)null);
                 });
 
             modelBuilder.Entity("Hotels.Domain.Entities.RatePlan", b =>
@@ -92,29 +249,136 @@ namespace Hotels.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<decimal>("BasePrice")
+                        .HasColumnType("numeric")
+                        .HasColumnName("base_price");
+
+                    b.Property<bool>("BreakfastIncluded")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("breakfast_included");
+
+                    b.Property<int>("CancellationPolicyType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("cancellation_policy_type");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("varchar(32)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(3)")
+                        .HasDefaultValue("RUB")
+                        .HasColumnName("currency");
+
                     b.Property<Guid>("HotelId")
                         .HasColumnType("uuid")
                         .HasColumnName("hotel_id");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_default");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("numeric")
-                        .HasColumnName("price");
+                    b.Property<bool>("PrepaymentRequired")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("prepayment_required");
 
                     b.Property<Guid>("RoomTypeId")
                         .HasColumnType("uuid")
                         .HasColumnName("room_type_id");
 
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
+
                     b.HasKey("Id")
                         .HasName("pk_rate_plans");
 
-                    b.HasIndex("HotelId");
+                    b.HasIndex("HotelId")
+                        .HasDatabaseName("ix_rate_plans_hotel_id");
+
+                    b.HasIndex("RoomTypeId");
 
                     b.ToTable("rate_plans", (string)null);
+                });
+
+            modelBuilder.Entity("Hotels.Domain.Entities.RecentActivityLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ActivityType")
+                        .IsRequired()
+                        .HasColumnType("varchar(64)")
+                        .HasColumnName("activity_type");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<Guid?>("EntityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("EntityType")
+                        .HasColumnType("varchar(64)")
+                        .HasColumnName("entity_type");
+
+                    b.Property<Guid?>("HotelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("hotel_id");
+
+                    b.Property<string>("PerformedBy")
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("performed_by");
+
+                    b.Property<DateTimeOffset>("Timestamp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("timestamp")
+                        .HasDefaultValueSql("now()");
+
+                    b.HasKey("Id")
+                        .HasName("pk_recent_activity_logs");
+
+                    b.HasIndex("HotelId")
+                        .HasDatabaseName("ix_recent_activity_logs_hotel_id");
+
+                    b.HasIndex("Timestamp")
+                        .HasDatabaseName("ix_recent_activity_logs_timestamp");
+
+                    b.ToTable("recent_activity_logs", (string)null);
                 });
 
             modelBuilder.Entity("Hotels.Domain.Entities.Room", b =>
@@ -123,29 +387,74 @@ namespace Hotels.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<int>("Floor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1)
+                        .HasColumnName("floor");
+
                     b.Property<Guid>("HotelId")
                         .HasColumnType("uuid")
                         .HasColumnName("hotel_id");
 
-                    b.Property<bool>("IsEnabled")
+                    b.Property<int>("HousekeepingStatus")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("housekeeping_status");
+
+                    b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true)
-                        .HasColumnName("is_enabled");
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text")
+                        .HasColumnName("notes");
 
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("number");
 
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("status");
+
                     b.Property<Guid>("TypeId")
                         .HasColumnType("uuid")
                         .HasColumnName("type_id");
 
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("ViewType")
+                        .HasColumnType("varchar(64)")
+                        .HasColumnName("view_type");
+
                     b.HasKey("Id")
                         .HasName("pk_rooms");
 
-                    b.HasIndex("HotelId");
+                    b.HasIndex("HotelId")
+                        .HasDatabaseName("ix_rooms_hotel_id");
+
+                    b.HasIndex("TypeId");
+
+                    b.HasIndex("HotelId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_rooms_hotel_number");
 
                     b.ToTable("rooms", (string)null);
                 });
@@ -157,11 +466,44 @@ namespace Hotels.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<decimal>("BaseAreaSqm")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("numeric")
+                        .HasDefaultValue(0m)
+                        .HasColumnName("base_area_sqm");
+
+                    b.Property<string>("BedConfiguration")
+                        .HasColumnType("varchar(128)")
+                        .HasColumnName("bed_configuration");
+
                     b.Property<int>("Capacity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(1)
                         .HasColumnName("capacity");
+
+                    b.Property<int>("CapacityAdults")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(2)
+                        .HasColumnName("capacity_adults");
+
+                    b.Property<int>("CapacityChildren")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("capacity_children");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("varchar(32)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("now()");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -172,15 +514,28 @@ namespace Hotels.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("hotel_id");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at")
+                        .HasDefaultValueSql("now()");
+
                     b.HasKey("Id")
                         .HasName("pk_room_types");
 
-                    b.HasIndex("HotelId");
+                    b.HasIndex("HotelId")
+                        .HasDatabaseName("ix_room_types_hotel_id");
 
                     b.ToTable("room_types", (string)null);
                 });
@@ -214,9 +569,101 @@ namespace Hotels.Infrastructure.Migrations
                     b.HasKey("Id")
                         .HasName("pk_season_prices");
 
-                    b.HasIndex("RoomTypeId");
+                    b.HasIndex("RoomTypeId")
+                        .HasDatabaseName("ix_season_prices_room_type_id");
 
                     b.ToTable("season_prices", (string)null);
+                });
+
+            modelBuilder.Entity("Hotels.Domain.Entities.HotelAmenity", b =>
+                {
+                    b.HasOne("Hotels.Domain.Entities.Hotel", "Hotel")
+                        .WithMany("Amenities")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hotel");
+                });
+
+            modelBuilder.Entity("Hotels.Domain.Entities.HotelPolicy", b =>
+                {
+                    b.HasOne("Hotels.Domain.Entities.Hotel", "Hotel")
+                        .WithOne("Policy")
+                        .HasForeignKey("Hotels.Domain.Entities.HotelPolicy", "HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hotel");
+                });
+
+            modelBuilder.Entity("Hotels.Domain.Entities.RatePlan", b =>
+                {
+                    b.HasOne("Hotels.Domain.Entities.Hotel", "Hotel")
+                        .WithMany("RatePlans")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hotels.Domain.Entities.RoomType", "RoomType")
+                        .WithMany("RatePlans")
+                        .HasForeignKey("RoomTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Hotel");
+
+                    b.Navigation("RoomType");
+                });
+
+            modelBuilder.Entity("Hotels.Domain.Entities.Room", b =>
+                {
+                    b.HasOne("Hotels.Domain.Entities.Hotel", "Hotel")
+                        .WithMany("Rooms")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hotels.Domain.Entities.RoomType", "RoomType")
+                        .WithMany("Rooms")
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Hotel");
+
+                    b.Navigation("RoomType");
+                });
+
+            modelBuilder.Entity("Hotels.Domain.Entities.RoomType", b =>
+                {
+                    b.HasOne("Hotels.Domain.Entities.Hotel", "Hotel")
+                        .WithMany("RoomTypes")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hotel");
+                });
+
+            modelBuilder.Entity("Hotels.Domain.Entities.Hotel", b =>
+                {
+                    b.Navigation("Amenities");
+
+                    b.Navigation("Policy");
+
+                    b.Navigation("RatePlans");
+
+                    b.Navigation("RoomTypes");
+
+                    b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("Hotels.Domain.Entities.RoomType", b =>
+                {
+                    b.Navigation("RatePlans");
+
+                    b.Navigation("Rooms");
                 });
 #pragma warning restore 612, 618
         }
