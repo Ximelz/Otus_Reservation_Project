@@ -1,110 +1,225 @@
-using System.Net;
-using Admin.Application.Abstractions;
-using Admin.Application.Contracts.Hotels;
+using Admin.WebApi.Dtos;
+using Hotels.Domain.Entities;
+using Hotels.Domain.Enums;
+using Hotels.Infrastructure;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Shared.Contracts.IntegrationEvents.Hotels;
 
 namespace Admin.WebApi.Controllers;
 
 [ApiController]
-[Route("api/admin/rooms")]
+[Route("api/admin")]
 [Authorize(Roles = "Admin")]
 public sealed class AdminRoomsController : ControllerBase
 {
-    private readonly IHotelsClient _hotelsClient;
+    private readonly PgDbContextOptions _pgOptions;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public AdminRoomsController(IHotelsClient hotelsClient)
+    public AdminRoomsController(PgDbContextOptions pgOptions, IPublishEndpoint publishEndpoint)
     {
-        _hotelsClient = hotelsClient;
+        _pgOptions = pgOptions;
+        _publishEndpoint = publishEndpoint;
     }
 
-    [HttpGet("{id:long}")]
-    public async Task<ActionResult<RoomDto>> Get(long id, CancellationToken cancellationToken)
+    [HttpGet("hotels/{hotelId:guid}/rooms")]
+    public async Task<ActionResult<List<Dtos.RoomDto>>> GetByHotel(
+        Guid hotelId,
+        [FromQuery] RoomStatus? status,
+        [FromQuery] HousekeepingStatus? housekeeping,
+        [FromQuery] int? floor,
+        [FromQuery] Guid? roomTypeId,
+        CancellationToken ct)
     {
-        try
-        {
-            var room = await _hotelsClient.GetRoom(id, cancellationToken);
-            return room is null ? NotFound() : Ok(room);
-        }
-        catch (Exception ex)
-        {
-            return MapDownstreamError("HotelService", ex);
-        }
+        using var db = new PgDbContext(_pgOptions);
+        var query = db.Rooms.AsNoTracking().Where(r => r.HotelId == hotelId);
+
+        if (status.HasValue) query = query.Where(r => r.Status == status.Value);
+        if (housekeeping.HasValue) query = query.Where(r => r.HousekeepingStatus == housekeeping.Value);
+        if (floor.HasValue) query = query.Where(r => r.Floor == floor.Value);
+        if (roomTypeId.HasValue) query = query.Where(r => r.TypeId == roomTypeId.Value);
+
+        var rooms = await query.OrderBy(r => r.Floor).ThenBy(r => r.Number).ToListAsync(ct);
+        var roomTypes = await db.RoomTypes.AsNoTracking().Where(rt => rt.HotelId == hotelId)
+            .ToDictionaryAsync(rt => rt.Id, rt => rt.Name, ct);
+        var hotel = await db.Hotels.AsNoTracking().FirstOrDefaultAsync(h => h.Id == hotelId, ct);
+
+        return Ok(rooms.Select(r => MapRoom(r, hotel?.Name ?? "", roomTypes.GetValueOrDefault(r.TypeId, ""))).ToList());
     }
 
-    [HttpGet("hotel/{hotelId:long}")]
-    public async Task<ActionResult<IReadOnlyList<RoomDto>>> GetByHotel(long hotelId, CancellationToken cancellationToken)
+    [HttpGet("rooms/{id:guid}")]
+    public async Task<ActionResult<Dtos.RoomDto>> GetById(Guid id, CancellationToken ct)
     {
-        try
-        {
-            return Ok(await _hotelsClient.GetRoomsByHotel(hotelId, cancellationToken));
-        }
-        catch (Exception ex)
-        {
-            return MapDownstreamError("HotelService", ex);
-        }
+        using var db = new PgDbContext(_pgOptions);
+        var room = await db.Rooms.AsNoTracking().FirstOrDefaultAsync(r => r.Id == id, ct);
+        if (room is null) return NotFound();
+        var hotel = await db.Hotels.AsNoTracking().FirstOrDefaultAsync(h => h.Id == room.HotelId, ct);
+        var rtName = await db.RoomTypes.AsNoTracking().Where(rt => rt.Id == room.TypeId).Select(rt => rt.Name).FirstOrDefaultAsync(ct);
+        return Ok(MapRoom(room, hotel?.Name ?? "", rtName ?? ""));
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Upsert([FromBody] RoomDto room, CancellationToken cancellationToken)
+    [HttpPost("hotels/{hotelId:guid}/rooms")]
+    public async Task<ActionResult<Dtos.RoomDto>> Create(Guid hotelId, [FromBody] RoomUpsertRequest request, CancellationToken ct)
     {
-        try
+        using var db = new PgDbContext(_pgOptions);
+        if (!await db.Hotels.AnyAsync(h => h.Id == hotelId, ct)) return NotFound();
+        if (await db.Rooms.AnyAsync(r => r.HotelId == hotelId && r.Number == request.Number, ct))
+            return Problem(statusCode: 409, title: $"Room {request.Number} already exists in this hotel");
+
+        var room = new Room
         {
-            await _hotelsClient.UpsertRoom(room, cancellationToken);
-            return NoContent();
-        }
-        catch (Exception ex)
+            Id = Guid.NewGuid(), HotelId = hotelId, TypeId = request.TypeId,
+            Number = request.Number, Floor = request.Floor,
+            Status = RoomStatus.Available, HousekeepingStatus = HousekeepingStatus.Clean,
+            ViewType = request.ViewType, Notes = request.Notes,
+            IsActive = true, CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow
+        };
+        db.Rooms.Add(room);
+        db.RecentActivityLogs.Add(new RecentActivityLog
         {
-            return MapDownstreamError("HotelService", ex);
-        }
+            Id = Guid.NewGuid(), HotelId = hotelId, ActivityType = "RoomCreated",
+            Description = $"Room {room.Number} created on floor {room.Floor}",
+            EntityType = "Room", EntityId = room.Id,
+            Timestamp = DateTimeOffset.UtcNow, PerformedBy = User.Identity?.Name
+        });
+        await db.SaveChangesAsync(ct);
+        return Ok(MapRoom(room, "", ""));
     }
 
-    [HttpDelete("{id:long}")]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
+    [HttpPut("rooms/{id:guid}")]
+    public async Task<ActionResult<Dtos.RoomDto>> Update(Guid id, [FromBody] RoomUpsertRequest request, CancellationToken ct)
     {
-        try
-        {
-            await _hotelsClient.DeleteRoom(id, cancellationToken);
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            return MapDownstreamError("HotelService", ex);
-        }
+        using var db = new PgDbContext(_pgOptions);
+        var room = await db.Rooms.FirstOrDefaultAsync(r => r.Id == id, ct);
+        if (room is null) return NotFound();
+
+        room.TypeId = request.TypeId; room.Number = request.Number;
+        room.Floor = request.Floor; room.ViewType = request.ViewType;
+        room.Notes = request.Notes; room.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync(ct);
+        return Ok(MapRoom(room, "", ""));
     }
 
-    [HttpDelete("hotel/{hotelId:long}")]
-    public async Task<IActionResult> DeleteByHotel(long hotelId, CancellationToken cancellationToken)
+    [HttpPatch("rooms/{id:guid}/status")]
+    public async Task<IActionResult> ChangeStatus(Guid id, [FromBody] RoomStatusChangeRequest request, CancellationToken ct)
     {
-        try
+        using var db = new PgDbContext(_pgOptions);
+        var room = await db.Rooms.FirstOrDefaultAsync(r => r.Id == id, ct);
+        if (room is null) return NotFound();
+
+        var prev = room.Status;
+        room.Status = request.Status;
+        room.UpdatedAt = DateTimeOffset.UtcNow;
+
+        db.RecentActivityLogs.Add(new RecentActivityLog
         {
-            await _hotelsClient.DeleteRoomsByHotel(hotelId, cancellationToken);
-            return NoContent();
-        }
-        catch (Exception ex)
+            Id = Guid.NewGuid(), HotelId = room.HotelId, ActivityType = "RoomStatusChanged",
+            Description = $"Room {room.Number}: {prev} → {request.Status}",
+            EntityType = "Room", EntityId = room.Id,
+            Timestamp = DateTimeOffset.UtcNow, PerformedBy = User.Identity?.Name
+        });
+        await db.SaveChangesAsync(ct);
+
+        await _publishEndpoint.Publish(new RoomStatusChangedIntegrationEvent
         {
-            return MapDownstreamError("HotelService", ex);
-        }
+            RoomId = room.Id,
+            HotelId = room.HotelId,
+            RoomNumber = room.Number,
+            PreviousStatus = (Shared.Contracts.Enums.RoomStatus)(int)prev,
+            NewStatus = (Shared.Contracts.Enums.RoomStatus)(int)request.Status,
+            Timestamp = DateTimeOffset.UtcNow,
+            CorrelationId = Guid.NewGuid()
+        }, ct);
+
+        return NoContent();
     }
 
-    private ObjectResult MapDownstreamError(string dependencyName, Exception exception)
+    [HttpPatch("rooms/{id:guid}/housekeeping")]
+    public async Task<IActionResult> ChangeHousekeeping(Guid id, [FromBody] HousekeepingStatusChangeRequest request, CancellationToken ct)
     {
-        if (exception is TaskCanceledException)
-        {
-            return Problem(statusCode: StatusCodes.Status504GatewayTimeout, title: $"{dependencyName} timeout");
-        }
+        using var db = new PgDbContext(_pgOptions);
+        var room = await db.Rooms.FirstOrDefaultAsync(r => r.Id == id, ct);
+        if (room is null) return NotFound();
+        var hotelName = await db.Hotels.Where(h => h.Id == room.HotelId).Select(h => h.Name).FirstOrDefaultAsync(ct) ?? "";
 
-        if (exception is HttpRequestException httpEx)
+        var prev = room.HousekeepingStatus;
+        room.HousekeepingStatus = request.HousekeepingStatus;
+        room.UpdatedAt = DateTimeOffset.UtcNow;
+
+        db.RecentActivityLogs.Add(new RecentActivityLog
         {
-            if (httpEx.StatusCode is HttpStatusCode statusCode)
+            Id = Guid.NewGuid(), HotelId = room.HotelId, ActivityType = "HousekeepingChanged",
+            Description = $"Room {room.Number}: {prev} → {request.HousekeepingStatus}",
+            EntityType = "Room", EntityId = room.Id,
+            Timestamp = DateTimeOffset.UtcNow, PerformedBy = User.Identity?.Name
+        });
+        await db.SaveChangesAsync(ct);
+
+        await _publishEndpoint.Publish(new HousekeepingStatusChangedIntegrationEvent
+        {
+            RoomId = room.Id,
+            HotelId = room.HotelId,
+            RoomNumber = room.Number,
+            HotelName = hotelName,
+            PreviousStatus = (Shared.Contracts.Enums.HousekeepingStatus)(int)prev,
+            NewStatus = (Shared.Contracts.Enums.HousekeepingStatus)(int)request.HousekeepingStatus,
+            Timestamp = DateTimeOffset.UtcNow,
+            CorrelationId = Guid.NewGuid()
+        }, ct);
+
+        return NoContent();
+    }
+
+    [HttpPatch("rooms/bulk-housekeeping")]
+    public async Task<IActionResult> BulkHousekeeping([FromBody] BulkHousekeepingRequest request, CancellationToken ct)
+    {
+        using var db = new PgDbContext(_pgOptions);
+        var rooms = await db.Rooms.Where(r => request.RoomIds.Contains(r.Id)).ToListAsync(ct);
+        var hotelIds = rooms.Select(r => r.HotelId).Distinct().ToList();
+        var hotelNames = await db.Hotels.Where(h => hotelIds.Contains(h.Id)).ToDictionaryAsync(h => h.Id, h => h.Name, ct);
+        var previousStatuses = rooms.ToDictionary(r => r.Id, r => r.HousekeepingStatus);
+        foreach (var room in rooms)
+        {
+            room.HousekeepingStatus = request.HousekeepingStatus;
+            room.UpdatedAt = DateTimeOffset.UtcNow;
+        }
+        await db.SaveChangesAsync(ct);
+
+        foreach (var room in rooms)
+        {
+            var prevStatus = previousStatuses[room.Id];
+            await _publishEndpoint.Publish(new HousekeepingStatusChangedIntegrationEvent
             {
-                return Problem(statusCode: (int)statusCode, title: $"{dependencyName} error", detail: httpEx.Message);
-            }
-
-            return Problem(statusCode: StatusCodes.Status503ServiceUnavailable, title: $"{dependencyName} unavailable", detail: httpEx.Message);
+                RoomId = room.Id,
+                HotelId = room.HotelId,
+                RoomNumber = room.Number,
+                HotelName = hotelNames.GetValueOrDefault(room.HotelId, ""),
+                PreviousStatus = (Shared.Contracts.Enums.HousekeepingStatus)(int)prevStatus,
+                NewStatus = (Shared.Contracts.Enums.HousekeepingStatus)(int)request.HousekeepingStatus,
+                Timestamp = DateTimeOffset.UtcNow,
+                CorrelationId = Guid.NewGuid()
+            }, ct);
         }
 
-        return Problem(statusCode: StatusCodes.Status500InternalServerError, title: "Unexpected error", detail: exception.Message);
+        return NoContent();
     }
-}
 
+    [HttpDelete("rooms/{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        using var db = new PgDbContext(_pgOptions);
+        await db.Rooms.Where(r => r.Id == id).ExecuteDeleteAsync(ct);
+        return NoContent();
+    }
+
+    private static Dtos.RoomDto MapRoom(Room r, string hotelName, string roomTypeName) => new()
+    {
+        Id = r.Id, HotelId = r.HotelId, HotelName = hotelName,
+        TypeId = r.TypeId, RoomTypeName = roomTypeName,
+        Number = r.Number, Floor = r.Floor,
+        Status = r.Status, HousekeepingStatus = r.HousekeepingStatus,
+        ViewType = r.ViewType, Notes = r.Notes, IsActive = r.IsActive
+    };
+}

@@ -55,7 +55,7 @@ namespace Hotels.xUnitTests
             newRatePlan.HotelId = Guid.NewGuid();
             newRatePlan.Name = "name";
             newRatePlan.RoomTypeId = Guid.NewGuid();
-            newRatePlan.Price = 10.99;
+            newRatePlan.BasePrice = 10.99m;
 
             await _ratePlansRepository.Add(newRatePlan);
 
@@ -77,7 +77,7 @@ namespace Hotels.xUnitTests
                 newRatePlan.HotelId = newHotelId;
                 newRatePlan.Name = "name";
                 newRatePlan.RoomTypeId = newRoomTypeId;
-                newRatePlan.Price = 10.99;
+                newRatePlan.BasePrice = 10.99m;
 
                 await _ratePlansRepository.Add(newRatePlan);
 
@@ -117,7 +117,7 @@ namespace Hotels.xUnitTests
                 RatePlan newRatePlan = new();
                 newRatePlan.HotelId = newHotelId;
                 newRatePlan.Name = (i + 1).ToString();
-                newRatePlan.Price = 10 + i;
+                newRatePlan.BasePrice =10 + i;
 
                 await _ratePlansRepository.Add(newRatePlan);
 
@@ -153,7 +153,7 @@ namespace Hotels.xUnitTests
                 RatePlan newRatePlan = new();
                 newRatePlan.HotelId = hotel1Id;
                 newRatePlan.Name = $"name{i + 1}";
-                newRatePlan.Price = (i + 1) * 10;
+                newRatePlan.BasePrice =(i + 1) * 10;
 
                 await _ratePlansRepository.Add(newRatePlan);
             }
@@ -165,7 +165,7 @@ namespace Hotels.xUnitTests
                 RatePlan newRatePlan = new();
                 newRatePlan.HotelId = hotel2Id;
                 newRatePlan.Name = $"name{i + 1}";
-                newRatePlan.Price = (i + 1) * 10;
+                newRatePlan.BasePrice =(i + 1) * 10;
 
                 await _ratePlansRepository.Add(newRatePlan);
             }

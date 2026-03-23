@@ -78,7 +78,7 @@ namespace Hotels.WebApi.Controllers
             var rates = await _ratePlansService.Get(rp => rp.RoomTypeId == room.TypeId);
             if (rates.Count > 0)
             {
-                price = rates.First().Price * multiplier;
+                price = (double)rates.First().BasePrice * multiplier;
             }
 
             return price;

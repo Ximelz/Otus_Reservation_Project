@@ -1,3 +1,10 @@
 **/.vs/
 **/bin/
 **/obj/
+.nuget/
+.dotnet/
+.logs/
+.cursor/
+.home/
+**/node_modules/
+**/dist/

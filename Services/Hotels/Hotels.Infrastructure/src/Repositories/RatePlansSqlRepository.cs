@@ -43,7 +43,7 @@ namespace Hotels.Infrastructure.Repositories
             {
                 var query = dbContext.RatePlans.Where(predicate)
                                 .OrderBy(rp => rp.HotelId)
-                                .OrderBy(rp => rp.Price);
+                                .OrderBy(rp => rp.BasePrice);
 
                 return Task.FromResult<IReadOnlyList<RatePlan>>(query.ToList());
             }

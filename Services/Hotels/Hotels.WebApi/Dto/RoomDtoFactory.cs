@@ -9,7 +9,7 @@ namespace Hotels.WebApi.Dto
                                                                                                                 Hotel = GetHotelDto(hotel),
                                                                                                                 RoomNumb = room.Number,
                                                                                                                 Price = price,
-                                                                                                                IsEnabled = room.IsEnabled,
+                                                                                                                IsEnabled = room.IsActive,
                                                                                                                 Capacity = capacity};
 
         private static HotelDto GetHotelDto(Hotel hotel) => new HotelDto() {  Id = hotel.Id,
