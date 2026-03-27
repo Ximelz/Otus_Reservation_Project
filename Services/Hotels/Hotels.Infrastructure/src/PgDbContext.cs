@@ -22,6 +22,8 @@ namespace Hotels.Infrastructure
         public PgDbContext(PgDbContextOptions options) : base(options.GetOptions())
         {
             _pgOptions = options;
+            Database.EnsureCreated();
+            this.SaveChanges();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

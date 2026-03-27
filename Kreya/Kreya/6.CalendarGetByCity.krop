@@ -1,0 +1,22 @@
+{
+  "details": {
+    "path": "/api/calendars/SomeCity1/byCity",
+    "method": "GET",
+    "headers": [
+      {
+        "key": "Content-Type",
+        "value": "application/json"
+      }
+    ],
+    "pathParams": []
+  },
+  "requests": [
+    {
+      "location": "6.CalendarGetByCity-request.json",
+      "contentType": "json"
+    }
+  ],
+  "operationType": "unary",
+  "invokerName": "rest",
+  "typeHint": "GET"
+}

@@ -57,12 +57,16 @@ namespace Hotels.Setup
         private void SetDefaultSettings()
         {
             _settings.Clear();
-
             _settings["userId"] = "postgres";
-            _settings["password"] = "";
-            _settings["host"] = "127.0.0.1";
-            _settings["port"] = "5432";
-            _settings["databaseName"] = "hotels";
+            _settings["password"] = "12345";
+            _settings["host"] = "localhost";
+            _settings["port"] = "15433";
+            _settings["databaseName"] = "HotelDB";
+            //_settings["userId"] = "postgres";
+            //_settings["password"] = "12345";
+            //_settings["host"] = "127.0.0.1";
+            //_settings["port"] = "5432";
+            //_settings["databaseName"] = "hotels";
         }
 
         public bool ReadSettings()

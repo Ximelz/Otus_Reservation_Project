@@ -6,11 +6,6 @@
         "Path": "Services\\Admin\\Admin.WebApi\\Admin.WebApi.csproj",
         "Action": "Start",
         "DebugTarget": "http"
-      },
-      {
-        "Path": "Services\\Admin\\Admin.Ui\\Admin.Ui.csproj",
-        "Action": "Start",
-        "DebugTarget": "http"
       }
     ]
   },
@@ -23,12 +18,22 @@
         "DebugTarget": "http"
       },
       {
+        "Path": "docker-compose.dcproj",
+        "Action": "Start",
+        "DebugTarget": "Docker Compose"
+      },
+      {
         "Path": "Services\\Reserve\\Reserve.WebApi\\Reserve.WebApi.csproj",
         "Action": "Start",
         "DebugTarget": "http"
       },
       {
         "Path": "Services\\Hotels\\Hotels.WebApi\\Hotels.WebApi.csproj",
+        "Action": "Start",
+        "DebugTarget": "http"
+      },
+      {
+        "Path": "Services\\Notification\\Notification.WebApi\\Notification.WebApi.csproj",
         "Action": "Start",
         "DebugTarget": "http"
       }

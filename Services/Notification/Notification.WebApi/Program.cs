@@ -15,6 +15,8 @@ builder.Services.AddMassTransit(x =>
     x.SetKebabCaseEndpointNameFormatter();
     x.AddConsumer<HousekeepingStatusChangedConsumer>();
     x.AddConsumer<RoomStatusChangedConsumer>();
+    x.AddConsumer<ReserveCancellConsumer>();
+    x.AddConsumer<ReserveCreateConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
     {

@@ -7,7 +7,7 @@ namespace xUnitReservServiceTests
         private readonly IReserveService _service;
         public ReservexUnitTests()
         {
-            string dbConn = "Host=localhost;Database=ReserveServiceTest;Username=postgres;Password=12345;Port=5432";
+            IConnectString dbConn = new JsonConnectStr("..\\..\\..\\DBConn.json");
             IDbContextFactory<ReservDbContext> dbContext = new DbContextFactory(dbConn);
             IReserveRepository _repository = new PostgresSqlReserveRepository(dbContext);
             IReserveRepository _repositoryInMemory = new InMemoryReserveRepository();
@@ -139,7 +139,7 @@ namespace xUnitReservServiceTests
 
             List<Reserve> reservesAddFirstUser = new List<Reserve>();
             List<Reserve> reservesAddSecondUser = new List<Reserve>();
-            List<Reserve> reservesGet = new List<Reserve>();
+            IReadOnlyList<Reserve> reservesGet = new List<Reserve>();
 
             CancellationToken ct = CancellationToken.None;
 
@@ -194,7 +194,7 @@ namespace xUnitReservServiceTests
 
             List<Reserve> reservesAddFirstHotel = new List<Reserve>();
             List<Reserve> reservesAddSecondHotel = new List<Reserve>();
-            List<Reserve> reservesGet = new List<Reserve>();
+            IReadOnlyList<Reserve> reservesGet = new List<Reserve>();
 
             CancellationToken ct = CancellationToken.None;
 
@@ -246,7 +246,7 @@ namespace xUnitReservServiceTests
 
             List<Reserve> reservesAddFirstRoom = new List<Reserve>();
             List<Reserve> reservesAddSecondRoom = new List<Reserve>();
-            List<Reserve> reservesGet = new List<Reserve>();
+            IReadOnlyList<Reserve> reservesGet = new List<Reserve>();
 
             CancellationToken ct = CancellationToken.None;
 

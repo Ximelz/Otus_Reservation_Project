@@ -17,7 +17,7 @@ namespace Hotels.Infrastructure.Repositories
         {
             using (PgDbContext dbContext = new(_pgContextOptions))
             {
-                hotel.Id = Guid.NewGuid();
+                //hotel.Id = Guid.NewGuid();
                 await dbContext.AddAsync(hotel);
                 await dbContext.SaveChangesAsync();
 

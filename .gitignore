@@ -8,3 +8,4 @@
 .home/
 **/node_modules/
 **/dist/
+DBConn.json

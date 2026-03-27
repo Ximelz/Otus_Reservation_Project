@@ -51,18 +51,18 @@ namespace ReservService
             return Task.FromResult(reserves.Where(predicate).FirstOrDefault());
         }
 
-        public Task<List<Reserve>> GetListAsync(Func<Reserve, bool> predicate, CancellationToken ct)
+        public Task<IReadOnlyList<Reserve>> GetListAsync(Func<Reserve, bool> predicate, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
-
-            return Task.FromResult(reserves.Where(predicate).ToList());
+            IReadOnlyList<Reserve> readonlyReserves= reserves.Where(predicate).ToList();
+            return Task.FromResult(readonlyReserves);
         }
 
-        public Task<List<Reserve>> GetAllAsync(CancellationToken ct)
+        public Task<IReadOnlyList<Reserve>> GetAllAsync(CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
-            return Task.FromResult(reserves);
+            return Task.FromResult((IReadOnlyList<Reserve>)reserves);
         }
     }
 }

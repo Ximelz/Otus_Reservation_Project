@@ -12,10 +12,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Otus_Reservation_Project/Services/GatewayAPI/GatewayAPI.csproj", "Otus_Reservation_Project/Services/GatewayAPI/"]
-RUN dotnet restore "./Otus_Reservation_Project/Services/GatewayAPI/GatewayAPI.csproj"
+COPY ["Services/GatewayAPI/GatewayAPI/GatewayAPI.csproj", "Services/GatewayAPI/GatewayAPI/"]
+RUN dotnet restore "./Services/GatewayAPI/GatewayAPI/GatewayAPI.csproj"
 COPY . .
-WORKDIR "/src/Otus_Reservation_Project/Services/GatewayAPI"
+WORKDIR "/src/Services/GatewayAPI/GatewayAPI"
 RUN dotnet build "./GatewayAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап
