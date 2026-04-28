@@ -20,7 +20,7 @@ public class HotelsSeedService : IHostedService
     public async Task StartAsync(CancellationToken ct)
     {
         using var db = new PgDbContext(_pgOptions);
-        await db.Database.MigrateAsync(ct);
+        //await db.Database.MigrateAsync(ct);
 
         if (await db.Hotels.AnyAsync(ct))
         {

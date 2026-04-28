@@ -38,23 +38,24 @@ namespace ReservService
             await repository.UpdateAsync(reserve, ct);
         }
 
-        public async Task<List<Reserve>> GetReservesByUserId(Guid userId, CancellationToken ct)
+        public async Task<IReadOnlyList<Reserve>> GetReservesByUserId(Guid userId, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
             return await repository.GetListAsync(x => x.UserReserve.Id == userId, ct);
         }
 
-        public async Task<List<Reserve>> GetReservesByHotelId(Guid hotelId, CancellationToken ct)
+        public async Task<IReadOnlyList<Reserve>> GetReservesByHotelId(Guid hotelId, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
 
             return await repository.GetListAsync(x => x.RoomReserve.Hotel.Id == hotelId, ct);
         }
 
-        public async Task<List<Reserve>> GetReservesByRoomId(Guid roomId, CancellationToken ct)
+        public async Task<IReadOnlyList<Reserve>> GetReservesByRoomId(Guid roomId, CancellationToken ct)
         {
             ct.ThrowIfCancellationRequested();
+
 
             return await repository.GetListAsync(x => x.RoomReserve.Id == roomId, ct);
         }

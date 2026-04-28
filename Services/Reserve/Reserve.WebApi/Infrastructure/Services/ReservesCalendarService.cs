@@ -19,7 +19,7 @@
 
             foreach (var room in rooms)
             {
-                ReservesCalendar calendar = new ReservesCalendar(date1, date2, room.Id);
+                ReservesCalendar calendar = new ReservesCalendar(date1, date2, room);
                 await calendar.AddReservesInCalendar(reserves);
                 calendars.Add(calendar);
             }
@@ -37,7 +37,7 @@
 
             foreach (var room in rooms)
             {
-                ReservesCalendar calendar = new ReservesCalendar(date1, date2, room.Id);
+                ReservesCalendar calendar = new ReservesCalendar(date1, date2, room);
                 await calendar.AddReservesInCalendar(reserves);
                 calendars.Add(calendar);
             }
@@ -55,7 +55,7 @@
 
             foreach (var room in rooms)
             {
-                ReservesCalendar calendar = new ReservesCalendar(date1, date2, room.Id);
+                ReservesCalendar calendar = new ReservesCalendar(date1, date2, room);
                 await calendar.AddReservesInCalendar(reserves);
                 calendars.Add(calendar);
             }

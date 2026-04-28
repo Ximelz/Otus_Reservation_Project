@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-
+﻿using MassTransit;
+using Microsoft.AspNetCore.Mvc;
+using Shared.Contracts.IntegrationEvents.Reservations;
 
 namespace ReservService
 {
@@ -9,44 +9,55 @@ namespace ReservService
     public class ReserveController : ControllerBase
     {
         private readonly IReserveService _service;
-        public ReserveController(IReserveService service) => _service = service;
+        private readonly IPublishEndpoint _publishEndpoint;
+        public ReserveController(IReserveService service, IPublishEndpoint publishEndpoint)
+        {
+            _service = service;
+            _publishEndpoint = publishEndpoint;
+        }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByUser(Guid id)
+        public async Task<IActionResult> GetByUser(Guid id, CancellationToken ct)
         {
             try
             {
-                CancellationToken ct = new CancellationToken();
                 IReadOnlyList<Reserve> reserves = await _service.GetReservesByUserId(id, ct);
                 return Ok(reserves);
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post(ReserveDto reserveDto)
+        public async Task<IActionResult> Post(ReserveDto reserveDto, CancellationToken ct)
         {
             try
             {
-                CancellationToken ct = new CancellationToken();
-                await _service.RegisterReserve(ReserveFactory.CreateReserve(reserveDto), ct);
-                return Ok();
+                var freeRoomFlag = (await _service.GetReservesByRoomId(reserveDto.roomId, ct));
+                if (freeRoomFlag.Any(x => x.CheckIn <= reserveDto.checkOut && x.CheckOut >= reserveDto.checkIn))
+                    return BadRequest("Данные даты заняты!");
+
+                IReserveFactory factory = new ReserveFactory();
+
+                var reserve = factory.CreateReserve(reserveDto);
+
+                await _service.RegisterReserve(reserve, ct);
+                await _publishEndpoint.Publish(reserve.CreateEvent(), ct);
+                return Ok(reserve);
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpPut("{id}/checkIn")]
-        public async Task<IActionResult> PutUpdateCheckIn(Guid id, [FromBody] DateTime CheckIn)
+        public async Task<IActionResult> PutUpdateCheckIn(Guid id, [FromBody] DateTime CheckIn, CancellationToken ct)
         {
             try
             {
-                CancellationToken ct = new CancellationToken();
                 var reserve = await _service.GetReserveById(id, ct);
 
                 if (reserve == null)
@@ -56,18 +67,17 @@ namespace ReservService
                 await _service.UpdateReserve(reserve, ct);
                 return Ok();
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpPut("{id}/checkOut")]
-        public async Task<IActionResult> PutUpdateCheckOut(Guid id, [FromBody] DateTime CheckOut)
+        public async Task<IActionResult> PutUpdateCheckOut(Guid id, [FromBody] DateTime CheckOut, CancellationToken ct)
         {
             try
             {
-                CancellationToken ct = new CancellationToken();
                 var reserve = await _service.GetReserveById(id, ct);
 
                 if (reserve == null)
@@ -77,18 +87,17 @@ namespace ReservService
                 await _service.UpdateReserve(reserve, ct);
                 return Ok();
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpPut("{id}/cost")]
-        public async Task<IActionResult> PutUpdateCost(Guid id, [FromBody] long cost)
+        public async Task<IActionResult> PutUpdateCost(Guid id, [FromBody] long cost, CancellationToken ct)
         {
             try
             {
-                CancellationToken ct = new CancellationToken();
                 var reserve = await _service.GetReserveById(id, ct);
 
                 if (reserve == null)
@@ -98,24 +107,26 @@ namespace ReservService
                 await _service.UpdateReserve(reserve, ct);
                 return Ok();
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
 
         [HttpPut("{id}/cancel")]
-        public async Task<IActionResult> PutCancel(Guid id)
+        public async Task<IActionResult> PutCancel([FromBody] string Reason, Guid id, CancellationToken ct)
         {
             try
             {
-                CancellationToken ct = new CancellationToken();
+                var reserve = await _service.GetReserveById(id, ct);
+
                 await _service.CancelReserve(id, ct);
+                await _publishEndpoint.Publish(reserve.CancellEvent(Reason), ct);
                 return Ok();
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(ex.Message);
             }
         }
     }

@@ -8,8 +8,8 @@ namespace ReservService
 {
     public class DbContextFactory : IDbContextFactory<ReservDbContext>
     {
-        public DbContextFactory(string dbConn) => this.dbConn = dbConn;
-        private readonly string dbConn;
+        public DbContextFactory(IConnectString dbConn) => this.dbConn = dbConn;
+        private readonly IConnectString dbConn;
         public ReservDbContext CreateDbContext() => new ReservDbContext(dbConn);
     }
 }

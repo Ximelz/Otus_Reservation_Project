@@ -4,9 +4,9 @@ namespace ReservService
 {
     public class ReservDbContext : DbContext
     {
-        public ReservDbContext(string dbConn) : base()
+        public ReservDbContext(IConnectString connectStr) : base()
         {
-            this.dbConn = dbConn;
+            dbConn = connectStr.GetConnStr();
             //Database.EnsureDeleted();
             Database.EnsureCreated();
             this.SaveChanges();
